@@ -3,8 +3,23 @@
 // - pitch changing
 // - way to delete objects
 
-// image loading
-// https://www.html5canvastutorials.com/tutorials/html5-canvas-image-loader/
+/**
+ * Image sources
+ * folder_name (in assets folder): [file_names or file_indexes]
+ */
+let sources = {
+    players: [...Array(8).keys()],
+    pitches: [0,],
+    tools: ['text', 'text2',],
+    equipments: [0, 1,],
+};
+
+/**
+ * Image Loading Function
+ * Edited version of https://www.html5canvastutorials.com/tutorials/html5-canvas-image-loader/
+ * Loads images in a manner that it stores loaded images in a similar structure as the sources
+ * Don't touch unless you know what you're doing!
+ */
 function loadImages(sources, callback) {
     let images = {};
     let loadedImages = 0;
@@ -28,24 +43,29 @@ function loadImages(sources, callback) {
     }
 };
 
-let sources = {
-    players: [...Array(8).keys()],
-    pitches: [0,],
-    tools: ['text', 'text2',],
-    equipments: [0, 1,],
-};
-
+/**
+ * Main script
+ */
 loadImages(sources, function (images) {
     let selectedImage;
     let currentMode = 'none';
     let currentCursor = 'default';
 
+    /**
+     * Changes `currentMode` and the cursor to the affiliated icon
+     * 
+     * @param {String} mode The mode (players, tools, or equipments) that `currentMode` and the cursor is changing to
+     * @param {String} tool (optional) If `mode` is 'tools', the specific tool (text, draw, line...) that `currentMode` and the cursor is changing to
+     */
     function changeMode(mode, tool = '') {
         currentCursor = `url('${images[mode][tool == '' ? selectedImage : 'text'].src}') 16 16, auto`;
         stage.container().style.cursor = currentCursor;
         currentMode = tool == '' ? mode : tool;
     }
 
+    /**
+     * Loads the menu by adding icons and event listeners to them
+     */
     function loadMenu() {
         // create player elements
         for (let i of sources['players']) {
@@ -71,7 +91,6 @@ loadImages(sources, function (images) {
             });
         }
 
-
         // create equipment elements
         for (let i of sources['equipments']) {
             document.getElementById('equipments').innerHTML += `<img class="icon" id="equipment${i}" src="assets/equipments/${i}.png"></img>`;
@@ -83,10 +102,26 @@ loadImages(sources, function (images) {
                 changeMode('equipments');
             });
         }
-
     }
+    loadMenu();
 
+    /**
+     * When interacting with objects in `editingLayer`, change cursor to 'move' (drag)
+     */
     let editingLayer = new Konva.Layer();
+    editingLayer.on('mouseenter', function () {
+        stage.container().style.cursor = 'move';
+    });
+    editingLayer.on('mouseleave', function () {
+        stage.container().style.cursor = currentCursor;
+    });
+
+    /**
+     * Adds image to `editingLayer`
+     * @param {Image} image The image to add (from `images`)
+     * @param {Number} x The x position of the image being added
+     * @param {Number} y The y position of the image being added
+     */
     function addImage(image, x, y) {
         editingLayer.add(new Konva.Image({
             x: x - 16,
@@ -96,6 +131,13 @@ loadImages(sources, function (images) {
         }));
         stage.add(editingLayer);
     }
+
+    /**
+     * Adds text to `editingLayer`
+     * @param {String} text The text to add
+     * @param {*} x The x position of the text being added
+     * @param {*} y The y position of the text being added
+     */
     function addText(text, x, y) {
         editingLayer.add(new Konva.Text({
             x: x,
@@ -108,15 +150,10 @@ loadImages(sources, function (images) {
         }));
         stage.add(editingLayer);
     }
-    editingLayer.on('mouseenter', function () {
-        stage.container().style.cursor = 'move';
-    });
-    editingLayer.on('mouseleave', function () {
-        stage.container().style.cursor = currentCursor;
-    });
 
-    loadMenu();
-
+    /**
+     * The main stage
+     */
     const width = 640;
     const height = 445;
 
