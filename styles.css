@@ -1,6 +1,7 @@
 body {
     background-color: rgb(240, 240, 240);
-    -dont-know-why-it-wont-work-but-disable-for-now-display: flex;
+    display: flex;
+    flex-wrap: wrap;
     justify-content: center;
 }
 
@@ -25,6 +26,7 @@ body {
 
 #notes {
     background-color: white;
+    order: 2;
     width: 890px;
     height: 200px;
     border-style: solid;
