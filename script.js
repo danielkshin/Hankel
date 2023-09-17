@@ -202,5 +202,11 @@ notes.addEventListener('click', e => {
     // do stuff on click like prompt user
 
     // add text to notes
-    notes.innerHTML = 'hello';
+    notesContent.innerHTML = 'hello';
+});
+
+let saveButton = document.getElementById('saveButton')
+saveButton.addEventListener('click', e => {
+    // do stuff on click like save as text file
+    alert('i work');
 });
