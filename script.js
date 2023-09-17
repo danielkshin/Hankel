@@ -195,3 +195,12 @@ loadImages(sources, function (images) {
         }
     });
 });
+
+// Henry
+let notes = document.getElementById('notes');
+notes.addEventListener('click', e => {
+    // do stuff on click like prompt user
+
+    // add text to notes
+    notes.innerHTML = 'hello';
+});

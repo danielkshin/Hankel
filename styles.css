@@ -1,6 +1,6 @@
 body {
     background-color: rgb(240, 240, 240);
-    display: flex;
+    -dont-know-why-it-wont-work-but-disable-for-now-display: flex;
     justify-content: center;
 }
 
@@ -21,6 +21,14 @@ body {
 #equipments {
     background-color: black;
     width: 100px;
+}
+
+#notes {
+    background-color: white;
+    width: 890px;
+    height: 200px;
+    border-style: solid;
+    border-width: 1px;
 }
 
 .editor {
