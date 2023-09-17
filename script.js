@@ -1,7 +1,14 @@
-// to-do:
-// - other tools
-// - pitch changing
-// - way to delete objects
+/**
+ * TO DO:
+ * - other tools
+ *      - draw
+ *      - line
+ *      - arrow
+ *      - dotted arrow
+ *      - circle
+ * - pitch changing
+ * - deleting objects
+ */
 
 /**
  * Image sources
