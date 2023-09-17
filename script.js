@@ -1,5 +1,4 @@
 // to-do:
-// - cursor system -> change mode function?
 // - other tools
 // - pitch changing
 // - way to delete objects
@@ -16,7 +15,7 @@ function loadImages(sources, callback) {
     }
     for (let type in sources) {
         images[type] = [];
-        for (let src in sources[type]) {
+        for (let src of sources[type]) {
             images[type][src] = new Image();
             images[type][src].crossOrigin = 'anonymous';
             images[type][src].onload = function () {
@@ -24,7 +23,7 @@ function loadImages(sources, callback) {
                     callback(images);
                 }
             };
-            images[type][src].src = `assets/${type}/${sources[type][src]}.png`;
+            images[type][src].src = `assets/${type}/${src}.png`;
         }
     }
 };
@@ -38,8 +37,14 @@ let sources = {
 
 loadImages(sources, function (images) {
     let selectedImage;
-    let mode = 'none';
-    let cursor = 'default';
+    let currentMode = 'none';
+    let currentCursor = 'default';
+
+    function changeMode(mode, tool = '') {
+        currentCursor = `url('${images[mode][tool == '' ? selectedImage : 'text'].src}') 16 16, auto`;
+        stage.container().style.cursor = currentCursor;
+        currentMode = tool == '' ? mode : tool;
+    }
 
     function loadMenu() {
         // create player elements
@@ -49,11 +54,8 @@ loadImages(sources, function (images) {
         // add event listeners
         for (let i of sources['players']) {
             document.getElementById(`player${i}`).addEventListener('click', e => {
-                console.log(e.target.id, 'selected');
                 selectedImage = i;
-                cursor = `url('${e.target.src}') 16 16, auto`;
-                stage.container().style.cursor = cursor;
-                mode = 'player';
+                changeMode('players');
             });
         }
 
@@ -64,10 +66,8 @@ loadImages(sources, function (images) {
         for (let i of sources['tools']) {
             let element = document.getElementById(i);
             element.addEventListener('click', e => {
-                console.log(i, ' selected');
-                cursor = `url('${e.target.src}') 16 16, auto`;
-                stage.container().style.cursor = cursor;
-                mode = i;
+                selectedImage = i;
+                changeMode('tools', i);
             });
         }
 
@@ -79,28 +79,25 @@ loadImages(sources, function (images) {
         // add event listeners
         for (let i of sources['equipments']) {
             document.getElementById(`equipment${i}`).addEventListener('click', e => {
-                console.log(e.target.id, 'selected');
                 selectedImage = i;
-                cursor = `url('${e.target.src}') 16 16, auto`;
-                stage.container().style.cursor = cursor;
-                mode = 'equipment';
+                changeMode('equipments');
             });
         }
 
     }
 
-    let icons = new Konva.Layer();
+    let editingLayer = new Konva.Layer();
     function addImage(image, x, y) {
-        icons.add(new Konva.Image({
+        editingLayer.add(new Konva.Image({
             x: x - 16,
             y: y - 16,
             image: image,
             draggable: true,
         }));
-        stage.add(icons);
+        stage.add(editingLayer);
     }
     function addText(text, x, y) {
-        icons.add(new Konva.Text({
+        editingLayer.add(new Konva.Text({
             x: x,
             y: y,
             text: text,
@@ -109,15 +106,14 @@ loadImages(sources, function (images) {
             fill: 'black',
             draggable: true,
         }));
-        stage.add(icons);
+        stage.add(editingLayer);
     }
-    icons.on('mouseenter', function () {
+    editingLayer.on('mouseenter', function () {
         stage.container().style.cursor = 'move';
     });
-    icons.on('mouseleave', function () {
-        stage.container().style.cursor = cursor;
+    editingLayer.on('mouseleave', function () {
+        stage.container().style.cursor = currentCursor;
     });
-
 
     loadMenu();
 
@@ -142,14 +138,13 @@ loadImages(sources, function (images) {
 
     stage.on('click tap', function () {
         let pos = stage.getRelativePointerPosition();
-        console.log(pos.x, pos.y);
-        if (mode == 'player') {
+        if (currentMode == 'players') {
             addImage(images['players'][selectedImage], pos.x, pos.y);
         }
-        else if (mode == 'text') {
+        else if (currentMode == 'text') {
             addText(prompt('add text'), pos.x, pos.y);
         }
-        else if (mode == 'equipment') {
+        else if (currentMode == 'equipments') {
             addImage(images['equipments'][selectedImage], pos.x, pos.y);
         }
     });
