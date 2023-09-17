@@ -1,0 +1,40 @@
+body {
+    background-color: rgb(240, 240, 240);
+    display: flex;
+    justify-content: center;
+}
+
+.menu {
+    text-align: center;
+}
+
+#players {
+    background-color: black;
+    width: 100px;
+}
+
+#tools {
+    background-color: rgb(73, 73, 73);
+    width: 50px;
+}
+
+#equipments {
+    background-color: black;
+    width: 100px;
+}
+
+.editor {
+    display: flex;
+}
+
+.icon {
+    width: 30px;
+    height: 30px;
+    padding: 5px;
+}
+
+.icon:hover {
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+}
