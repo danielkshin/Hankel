@@ -8,6 +8,8 @@
  *      - circle
  * - pitch changing
  * - deleting objects
+ * - download as image
+ * - actual player/equipment images
  */
 
 /**
