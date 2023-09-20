@@ -19,7 +19,7 @@
 let sources = {
     players: [...Array(8).keys()],
     pitches: [0,],
-    tools: ['text', 'text2',],
+    tools: ['draw', 'text',],
     equipments: [0, 1,],
 };
 
@@ -57,8 +57,9 @@ function loadImages(sources, callback) {
  */
 loadImages(sources, function (images) {
     let selectedImage;
-    let currentMode = 'none';
+    let currentMode = 'brush';
     let currentCursor = 'default';
+    let freeDraw = false;
 
     /**
      * Changes `currentMode` and the cursor to the affiliated icon
@@ -67,7 +68,17 @@ loadImages(sources, function (images) {
      * @param {String} tool (optional) If `mode` is 'tools', the specific tool (text, draw, line...) that `currentMode` and the cursor is changing to
      */
     function changeMode(mode, tool = '') {
-        currentCursor = `url('${images[mode][tool == '' ? selectedImage : 'text'].src}') 16 16, auto`;
+        if (tool == 'draw') {
+            for (i of editingLayer.children) {
+                i.draggable(false);
+            }
+        } else {
+            for (i of editingLayer.children) {
+                i.draggable(true);
+            }
+        } // change to ternary
+        currentCursor = `url('${images[mode][tool == '' ? selectedImage : tool].src}') 16 16, auto`;
+        console.log(currentCursor);
         stage.container().style.cursor = currentCursor;
         currentMode = tool == '' ? mode : tool;
     }
@@ -119,10 +130,12 @@ loadImages(sources, function (images) {
      */
     let editingLayer = new Konva.Layer();
     editingLayer.on('mouseenter', function () {
-        stage.container().style.cursor = 'move';
+        if (currentMode != 'draw')
+            stage.container().style.cursor = 'move';
     });
     editingLayer.on('mouseleave', function () {
-        stage.container().style.cursor = currentCursor;
+        if (currentMode != 'draw')
+            stage.container().style.cursor = currentCursor;
     });
 
     /**
@@ -156,6 +169,18 @@ loadImages(sources, function (images) {
             fontFamily: 'Calibri',
             fill: 'black',
             draggable: true,
+        }));
+        stage.add(editingLayer);
+    }
+
+    function draw(x, y) {
+        editingLayer.add(new Konva.Text({
+            x: x,
+            y: y,
+            text: 'hi',
+            fontSize: 20,
+            fontFamily: 'Calibri',
+            fill: 'black',
         }));
         stage.add(editingLayer);
     }
@@ -194,6 +219,44 @@ loadImages(sources, function (images) {
             addImage(images['equipments'][selectedImage], pos.x, pos.y);
         }
     });
+
+    // https://konvajs.org/docs/sandbox/Free_Drawing.html
+    let drawLayer = new Konva.Layer();
+    stage.on('mousedown touchstart', function (e) {
+        if (currentMode == 'draw') {
+            let pos = stage.getPointerPosition();
+            freeDraw = true;
+            lastLine = new Konva.Line({
+                stroke: '#ffffff',
+                strokeWidth: 5,
+                globalCompositeOperation: 'source-over',
+                lineCap: 'round',
+                lineJoin: 'round',
+                points: [pos.x, pos.y, pos.x, pos.y],
+            });
+            drawLayer.add(lastLine);
+            stage.add(drawLayer);
+        }
+    });
+
+    stage.on('mouseup touchend', function () {
+        freeDraw = false;
+    });
+
+    stage.on('mousemove touchmove', function (e) {
+        if (currentMode == 'draw') {
+            if (!freeDraw) {
+                return;
+            }
+
+            e.evt.preventDefault();
+
+            const pos = stage.getPointerPosition();
+            let newPoints = lastLine.points().concat([pos.x, pos.y]);
+            lastLine.points(newPoints);
+        }
+    });
+
 });
 
 // Henry
