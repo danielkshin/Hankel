@@ -18,10 +18,11 @@
  */
 let sources = {
     players: [...Array(8).keys()],
-    pitches: [0,],
+    pitches: [...Array(7).keys()],
     tools: ['draw', 'text',],
     equipments: [0, 1,],
 };
+let pitchIndex = 0;
 
 /**
  * Image Loading Function
@@ -125,6 +126,20 @@ loadImages(sources, function (images) {
     }
     loadMenu();
 
+    function loadPitches() {
+        for (let i of sources['pitches']) {
+            document.getElementById('pitches').innerHTML += `<img class="pitch" id="pitch${i}" src="assets/pitches/${i}.png"></img>`;
+        }
+
+
+        for (let i of sources['pitches']) {
+            document.getElementById(`pitch${i}`).addEventListener('click', e => {
+                changePitch(i);
+            });
+        }
+    }
+    loadPitches();
+
     /**
      * When interacting with objects in `editingLayer`, change cursor to 'move' (drag)
      */
@@ -173,18 +188,6 @@ loadImages(sources, function (images) {
         stage.add(editingLayer);
     }
 
-    function draw(x, y) {
-        editingLayer.add(new Konva.Text({
-            x: x,
-            y: y,
-            text: 'hi',
-            fontSize: 20,
-            fontFamily: 'Calibri',
-            fill: 'black',
-        }));
-        stage.add(editingLayer);
-    }
-
     /**
      * The main stage
      */
@@ -206,6 +209,17 @@ loadImages(sources, function (images) {
         height: height,
     }));
     stage.add(pitch);
+
+    function changePitch(i) {
+        pitch.clear();
+        pitch.add(new Konva.Image({
+            x: 0,
+            y: 0,
+            image: images['pitches'][i],
+            width: width,
+            height: height,
+        }));
+    }
 
     stage.on('click tap', function () {
         let pos = stage.getRelativePointerPosition();

@@ -19,6 +19,15 @@ body {
     width: 50px;
 }
 
+.pitch {
+    width: 100px;
+    padding: 5px;
+}
+
+.pitch:hover {
+    cursor: pointer;
+}
+
 #equipments {
     background-color: black;
     width: 100px;
