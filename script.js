@@ -18,7 +18,7 @@
  */
 let sources = {
     players: [...Array(8).keys()],
-    pitches: [...Array(7).keys()],
+    pitches: [...Array(8).keys()],
     tools: ['draw', 'text',],
     equipments: [0, 1,],
 };
