@@ -1,13 +1,12 @@
 /**
  * TO DO:
- * - clean up this disgusting code
- * - download as image
+ * - continue to refine and clean code
  * - actual player/equipment images
  */
 
 /**
  * Image sources
- * folder_name (in assets folder): [file_names or file_indexes]
+ * folderName (in assets folder): [fileNames or fileIndexes]
  */
 let sources = {
     players: [...Array(8).keys()],
@@ -47,14 +46,15 @@ function loadImages(sources, callback) {
 
 /**
  * Main script
+ * Runs once all images are loaded
  */
 loadImages(sources, function (images) {
-    let selectedImage;
-    let currentMode = 'brush';
-    let currentCursor = 'default';
-    let draw = false;
-
-
+    /**
+     * Downloads data URI as a file
+     * 
+     * @param {*} uri URI
+     * @param {String} name File name
+     */
     function downloadURI(uri, name) {
         let link = document.createElement('a');
         link.download = name;
@@ -64,8 +64,12 @@ loadImages(sources, function (images) {
         document.body.removeChild(link);
         delete link;
     }
+
+    /**
+     * Downloads the stage as an image and prompts the user for the file name
+     */
     function downloadImage() {
-        let fileName = prompt('File Name?');
+        let fileName = prompt('File Name:');
         let dataURL = stage.toDataURL({ pixelRatio: 3 });
         downloadURI(dataURL, `${fileName}.png`);
     }
@@ -74,30 +78,29 @@ loadImages(sources, function (images) {
      * Changes `currentMode` and the cursor to the affiliated icon
      * 
      * @param {String} mode The mode (players, tools, or equipments) that `currentMode` and the cursor is changing to
-     * @param {String} tool (optional) If `mode` is 'tools', the specific tool (text, draw, line...) that `currentMode` and the cursor is changing to
+     * @param {String} tool (optional) If `mode` is 'tools', the specific tool (text, markup, line...) that `currentMode` and the cursor is changing to
      */
     function changeMode(mode, tool = '') {
         if (mode == 'players' || mode == 'equipments') {
-            for (i of editingLayer.children) {
+            for (i of graphicsLayer.children) {
                 i.draggable(true);
             }
         } else {
-            for (i of editingLayer.children) {
+            for (i of graphicsLayer.children) {
                 i.draggable(false);
             }
-        } // change to ternary
+        }
         if (tool == 'download') {
             downloadImage();
             return;
         }
         currentCursor = `url('${images[mode][tool == '' ? selectedImage : tool].src}') 16 16, auto`;
-        console.log(currentCursor);
         stage.container().style.cursor = currentCursor;
         currentMode = tool == '' ? mode : tool;
     }
 
     /**
-     * Loads the menu by adding icons and event listeners to them
+     * Loads the menu by adding icons and event listeners
      */
     function loadMenu() {
         // create player elements
@@ -136,70 +139,84 @@ loadImages(sources, function (images) {
             });
         }
     }
-    loadMenu();
 
+    /**
+     * Loads the pitches menu by adding pitches and event listeners
+     */
     function loadPitches() {
         for (let i of sources['pitches']) {
             document.getElementById('pitches').innerHTML += `<img class="pitch" id="pitch${i}" src="assets/pitches/${i}.png"></img>`;
         }
-
-
         for (let i of sources['pitches']) {
             document.getElementById(`pitch${i}`).addEventListener('click', e => {
                 changePitch(i);
             });
         }
     }
-    loadPitches();
 
-    let editingLayer = new Konva.Layer();
+    let graphicsLayer = new Konva.Layer();
     /**
-     * Adds image to `editingLayer`
+     * Adds image to `graphicsLayer`
      * @param {Image} image The image to add (from `images`)
      * @param {Number} x The x position of the image being added
      * @param {Number} y The y position of the image being added
      */
     function addImage(image, x, y) {
-        editingLayer.add(new Konva.Image({
-            x: x - 16,
-            y: y - 16,
-            image: image,
-            draggable: true,
-        }));
-        stage.add(editingLayer);
+        graphicsLayer.add(
+            new Konva.Image({
+                x: x - 16,
+                y: y - 16,
+                image: image,
+                draggable: true,
+            }));
+        stage.add(graphicsLayer);
     }
 
     /**
-     * Adds text to `editingLayer`
+     * Adds text to `graphicsLayer`
      * @param {String} text The text to add
      * @param {*} x The x position of the text being added
      * @param {*} y The y position of the text being added
      */
     function addText(text, x, y) {
-        editingLayer.add(new Konva.Text({
-            x: x,
-            y: y,
-            text: text,
-            fontSize: 20,
-            fontFamily: 'Calibri',
-            fill: 'black',
-            draggable: true,
-        }));
-        stage.add(editingLayer);
+        graphicsLayer.add(
+            new Konva.Text({
+                x: x,
+                y: y,
+                text: text,
+                fontSize: 20,
+                fontFamily: 'Calibri',
+                fill: '#ffffff',
+                draggable: true,
+            }));
+        stage.add(graphicsLayer);
     }
 
     /**
-     * The main stage
+     * Main code starts here
      */
+
+    // variables
+    let selectedImage;
+    let currentMode = 'none';
+    let currentCursor = 'default';
+    let markup = false;
+    let markupLayer = new Konva.Layer();
     const width = 640;
     const height = 445;
 
+    // load menus
+    loadMenu();
+    loadPitches();
+
+    // create the main stage
     let stage = new Konva.Stage({
         container: 'planner',
         width: width,
         height: height,
     });
 
+    // add the pitch to the stage
     let pitch = new Konva.Layer();
     pitch.add(new Konva.Image({
         x: 0,
@@ -210,120 +227,98 @@ loadImages(sources, function (images) {
     }));
     stage.add(pitch);
 
-    function changePitch(i) {
-        pitch.clear();
-        pitch.add(new Konva.Image({
-            x: 0,
-            y: 0,
-            image: images['pitches'][i],
-            width: width,
-            height: height,
-        }));
-    }
-
+    /**
+     * Interacting with the stage
+     */
+    // graphics
     stage.on('click tap', function (e) {
         let pos = stage.getRelativePointerPosition();
         if (currentMode == 'players') {
             addImage(images['players'][selectedImage], pos.x, pos.y);
         } else if (currentMode == 'text') {
-            addText(prompt('add text'), pos.x, pos.y);
+            addText(prompt('Add text:'), pos.x, pos.y);
         } else if (currentMode == 'equipments') {
             addImage(images['equipments'][selectedImage], pos.x, pos.y);
         } else if (currentMode == 'delete') {
+            // don't delete the pitch
             if (e.target.attrs.width == 640)
                 return;
             e.target.destroy();
             stage.container().style.cursor = currentCursor;
         }
     });
-
-
-
-    let drawLayer = new Konva.Layer();
-    let original = [0, 0];
-    stage.on('mousedown touchstart', function (e) {
+    // markup
+    stage.on('mousedown touchstart', function () {
         const pos = stage.getPointerPosition();
+        originalPosition = {
+            x: pos.x,
+            y: pos.y
+        };
+        markup = true;
 
-        original = [pos.x, pos.y];
-
-        draw = true;
-        if (currentMode == 'draw') {
-            line = new Konva.Line({
-                stroke: '#ffffff',
-                strokeWidth: 3,
-                globalCompositeOperation: 'source-over',
-                lineCap: 'round',
-                lineJoin: 'round',
-                points: [pos.x, pos.y, pos.x, pos.y],
-            });
-        } else if (currentMode == 'line') {
-            line = new Konva.Line({
-                stroke: '#ffffff',
-                strokeWidth: 3,
-                globalCompositeOperation: 'source-over',
-                lineCap: 'round',
-                lineJoin: 'round',
-            });
-        } else if (currentMode == 'dashedLine') {
-            line = new Konva.Line({
-                stroke: '#ffffff',
-                strokeWidth: 3,
-                globalCompositeOperation: 'source-over',
-                lineCap: 'round',
-                lineJoin: 'round',
-                dash: [15, 10],
-            });
-        } else if (currentMode == 'arrow') {
-            line = new Konva.Arrow({
-                stroke: '#ffffff',
-                strokeWidth: 3,
-                fill: '#ffffff',
-                globalCompositeOperation: 'source-over',
-                lineCap: 'round',
-                lineJoin: 'round',
-            });
-        } else if (currentMode == 'dashedArrow') {
-            line = new Konva.Arrow({
-                stroke: '#ffffff',
-                strokeWidth: 3,
-                fill: '#ffffff',
-                globalCompositeOperation: 'source-over',
-                lineCap: 'round',
-                lineJoin: 'round',
-                dash: [15, 10],
-            });
-        } else {
-            return;
+        switch (currentMode) {
+            case 'draw':
+            case 'line':
+            case 'dashedLine':
+                line = new Konva.Line({
+                    stroke: '#ffffff',
+                    strokeWidth: 3,
+                    globalCompositeOperation: 'source-over',
+                    lineCap: 'round',
+                    lineJoin: 'round',
+                    points: [pos.x, pos.y, pos.x, pos.y],
+                    dash: currentMode == 'dashedLine' ? [15, 10] : [],
+                });
+                break;
+            case 'arrow':
+            case 'dashedArrow':
+                line = new Konva.Arrow({
+                    stroke: '#ffffff',
+                    strokeWidth: 3,
+                    fill: '#ffffff',
+                    globalCompositeOperation: 'source-over',
+                    lineCap: 'round',
+                    lineJoin: 'round',
+                    dash: currentMode == 'dashedArrow' ? [15, 10] : [],
+                });
+                break;
+            default:
+                return;
         }
-
-        drawLayer.add(line);
-        stage.add(drawLayer);
+        markupLayer.add(line);
+        stage.add(markupLayer);
     });
-
     stage.on('mouseup touchend', function () {
-        draw = false;
+        markup = false;
     });
-
     stage.on('mousemove touchmove', function (e) {
         const pos = stage.getPointerPosition();
-
         e.evt.preventDefault();
-        if (!draw) {
+        if (!markup) {
             return;
         }
-        if (currentMode == 'draw') {
-            let newPoints = line.points().concat([pos.x, pos.y]);
-            line.points(newPoints);
-        } else if (currentMode == 'line' || currentMode == 'dashedLine' || currentMode == 'arrow' || currentMode == 'dashedArrow') {
-            line.points([original[0], original[1], pos.x, pos.y]);
+
+        switch (currentMode) {
+            case 'draw':
+                let newPoints = line.points().concat([pos.x, pos.y]);
+                line.points(newPoints);
+                break;
+            case 'line':
+            case 'dashedLine':
+            case 'arrow':
+            case 'dashedArrow':
+                line.points([originalPosition.x, originalPosition.y, pos.x, pos.y]);
+                break;
+            default:
+                return;
         }
     });
 
 
     /**
-     * When interacting with objects in `editingLayer`, change cursor to 'move' (drag)
+     * Change cursor when interacting with objects
      */
-    editingLayer.on('mouseenter', function () {
+    graphicsLayer.on('mouseenter', function () {
         if (currentMode == 'players' || currentMode == 'equipments') {
             stage.container().style.cursor = 'move';
         }
@@ -331,15 +326,15 @@ loadImages(sources, function (images) {
             stage.container().style.cursor = 'crosshair';
         }
     });
-    editingLayer.on('mouseleave', function () {
+    graphicsLayer.on('mouseleave', function () {
         stage.container().style.cursor = currentCursor;
     });
-    drawLayer.on('mouseenter', function () {
+    markupLayer.on('mouseenter', function () {
         if (currentMode == 'delete') {
             stage.container().style.cursor = 'crosshair';
         }
     });
-    drawLayer.on('mouseleave', function () {
+    markupLayer.on('mouseleave', function () {
         stage.container().style.cursor = currentCursor;
     });
 
