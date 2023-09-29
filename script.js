@@ -1,9 +1,6 @@
 /**
  * TO DO:
- * - other tools
- *      - dotted arrow
- *      - circle
- * - deleting objects
+ * - clean up this disgusting code
  * - download as image
  * - actual player/equipment images
  */
@@ -15,7 +12,7 @@
 let sources = {
     players: [...Array(8).keys()],
     pitches: [...Array(8).keys()],
-    tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow'],
+    tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow', 'delete'],
     equipments: [0, 1,],
 };
 
@@ -64,13 +61,13 @@ loadImages(sources, function (images) {
      * @param {String} tool (optional) If `mode` is 'tools', the specific tool (text, draw, line...) that `currentMode` and the cursor is changing to
      */
     function changeMode(mode, tool = '') {
-        if (tool == 'draw') {
+        if (mode == 'players' || mode == 'equipments') {
             for (i of editingLayer.children) {
-                i.draggable(false);
+                i.draggable(true);
             }
         } else {
             for (i of editingLayer.children) {
-                i.draggable(true);
+                i.draggable(false);
             }
         } // change to ternary
         currentCursor = `url('${images[mode][tool == '' ? selectedImage : tool].src}') 16 16, auto`;
@@ -140,11 +137,11 @@ loadImages(sources, function (images) {
      */
     let editingLayer = new Konva.Layer();
     editingLayer.on('mouseenter', function () {
-        if (currentMode != 'draw')
+        if (currentMode == 'players' || currentMode == 'equipments')
             stage.container().style.cursor = 'move';
     });
     editingLayer.on('mouseleave', function () {
-        if (currentMode != 'draw')
+        if (currentMode == 'players' || currentMode == 'equipments')
             stage.container().style.cursor = currentCursor;
     });
 
@@ -216,18 +213,22 @@ loadImages(sources, function (images) {
         }));
     }
 
-    stage.on('click tap', function () {
+    stage.on('click tap', function (e) {
         let pos = stage.getRelativePointerPosition();
         if (currentMode == 'players') {
             addImage(images['players'][selectedImage], pos.x, pos.y);
-        }
-        else if (currentMode == 'text') {
+        } else if (currentMode == 'text') {
             addText(prompt('add text'), pos.x, pos.y);
-        }
-        else if (currentMode == 'equipments') {
+        } else if (currentMode == 'equipments') {
             addImage(images['equipments'][selectedImage], pos.x, pos.y);
+        } else if (currentMode == 'delete') {
+            if (e.target.attrs.width == 640)
+                return;
+            e.target.destroy();
         }
     });
+
+
 
     let drawLayer = new Konva.Layer();
     let original = [0, 0];
@@ -282,6 +283,8 @@ loadImages(sources, function (images) {
                 lineJoin: 'round',
                 dash: [15, 10],
             });
+        } else {
+            return;
         }
 
         drawLayer.add(line);
