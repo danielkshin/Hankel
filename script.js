@@ -1,12 +1,8 @@
 /**
  * TO DO:
  * - other tools
- *      - draw
- *      - line
- *      - arrow
  *      - dotted arrow
  *      - circle
- * - pitch changing
  * - deleting objects
  * - download as image
  * - actual player/equipment images
@@ -19,10 +15,9 @@
 let sources = {
     players: [...Array(8).keys()],
     pitches: [...Array(8).keys()],
-    tools: ['draw', 'text',],
+    tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow'],
     equipments: [0, 1,],
 };
-let pitchIndex = 0;
 
 /**
  * Image Loading Function
@@ -60,7 +55,7 @@ loadImages(sources, function (images) {
     let selectedImage;
     let currentMode = 'brush';
     let currentCursor = 'default';
-    let freeDraw = false;
+    let draw = false;
 
     /**
      * Changes `currentMode` and the cursor to the affiliated icon
@@ -234,56 +229,82 @@ loadImages(sources, function (images) {
         }
     });
 
-    // https://konvajs.org/docs/sandbox/Free_Drawing.html
     let drawLayer = new Konva.Layer();
+    let original = [0, 0];
     stage.on('mousedown touchstart', function (e) {
+        const pos = stage.getPointerPosition();
+
+        original = [pos.x, pos.y];
+
+        draw = true;
         if (currentMode == 'draw') {
-            let pos = stage.getPointerPosition();
-            freeDraw = true;
-            lastLine = new Konva.Line({
+            line = new Konva.Line({
                 stroke: '#ffffff',
-                strokeWidth: 5,
+                strokeWidth: 3,
                 globalCompositeOperation: 'source-over',
                 lineCap: 'round',
                 lineJoin: 'round',
                 points: [pos.x, pos.y, pos.x, pos.y],
             });
-            drawLayer.add(lastLine);
-            stage.add(drawLayer);
+        } else if (currentMode == 'line') {
+            line = new Konva.Line({
+                stroke: '#ffffff',
+                strokeWidth: 3,
+                globalCompositeOperation: 'source-over',
+                lineCap: 'round',
+                lineJoin: 'round',
+            });
+        } else if (currentMode == 'dashedLine') {
+            line = new Konva.Line({
+                stroke: '#ffffff',
+                strokeWidth: 3,
+                globalCompositeOperation: 'source-over',
+                lineCap: 'round',
+                lineJoin: 'round',
+                dash: [15, 10],
+            });
+        } else if (currentMode == 'arrow') {
+            line = new Konva.Arrow({
+                stroke: '#ffffff',
+                strokeWidth: 3,
+                fill: '#ffffff',
+                globalCompositeOperation: 'source-over',
+                lineCap: 'round',
+                lineJoin: 'round',
+            });
+        } else if (currentMode == 'dashedArrow') {
+            line = new Konva.Arrow({
+                stroke: '#ffffff',
+                strokeWidth: 3,
+                fill: '#ffffff',
+                globalCompositeOperation: 'source-over',
+                lineCap: 'round',
+                lineJoin: 'round',
+                dash: [15, 10],
+            });
         }
+
+        drawLayer.add(line);
+        stage.add(drawLayer);
     });
 
     stage.on('mouseup touchend', function () {
-        freeDraw = false;
+        draw = false;
     });
 
     stage.on('mousemove touchmove', function (e) {
+        const pos = stage.getPointerPosition();
+
+        e.evt.preventDefault();
+        if (!draw) {
+            return;
+        }
         if (currentMode == 'draw') {
-            if (!freeDraw) {
-                return;
-            }
-
-            e.evt.preventDefault();
-
-            const pos = stage.getPointerPosition();
-            let newPoints = lastLine.points().concat([pos.x, pos.y]);
-            lastLine.points(newPoints);
+            let newPoints = line.points().concat([pos.x, pos.y]);
+            line.points(newPoints);
+        } else if (currentMode == 'line' || currentMode == 'dashedLine' || currentMode == 'arrow' || currentMode == 'dashedArrow') {
+            line.points([original[0], original[1], pos.x, pos.y]);
         }
     });
 
-});
-
-// Henry
-let notes = document.getElementById('notes');
-notes.addEventListener('click', e => {
-    // do stuff on click like prompt user
-
-    // add text to notes
-    notesContent.innerHTML = 'hello';
-});
-
-let saveButton = document.getElementById('saveButton')
-saveButton.addEventListener('click', e => {
-    // do stuff on click like save as text file
-    alert('i work');
 });
