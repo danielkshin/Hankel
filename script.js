@@ -1,6 +1,7 @@
 /**
  * TO DO:
  * - continue to refine and clean code
+ * - refine icons and cursors
  * - actual player/equipment images
  */
 
@@ -70,6 +71,8 @@ loadImages(sources, function (images) {
      */
     function downloadImage() {
         let fileName = prompt('File Name:');
+        if (fileName == null)
+            return;
         let dataURL = stage.toDataURL({ pixelRatio: 3 });
         downloadURI(dataURL, `${fileName}.png`);
     }
@@ -185,7 +188,7 @@ loadImages(sources, function (images) {
                 y: y,
                 text: text,
                 fontSize: 20,
-                fontFamily: 'Calibri',
+                fontFamily: 'Open Sans',
                 fill: '#ffffff',
                 draggable: true,
             }));
@@ -202,8 +205,8 @@ loadImages(sources, function (images) {
     let currentCursor = 'default';
     let markup = false;
     let markupLayer = new Konva.Layer();
-    const width = 640;
-    const height = 445;
+    const width = 830;
+    const height = 580;
 
     // load menus
     loadMenu();
