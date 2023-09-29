@@ -152,7 +152,15 @@ loadImages(sources, function (images) {
         }
         for (let i of sources['pitches']) {
             document.getElementById(`pitch${i}`).addEventListener('click', e => {
-                changePitch(i);
+                pitch.clear();
+                pitch.add(
+                    new Konva.Image({
+                        x: 0,
+                        y: 0,
+                        image: images['pitches'][i],
+                        width: width,
+                        height: height,
+                    }));
             });
         }
     }
@@ -221,13 +229,14 @@ loadImages(sources, function (images) {
 
     // add the pitch to the stage
     let pitch = new Konva.Layer();
-    pitch.add(new Konva.Image({
-        x: 0,
-        y: 0,
-        image: images['pitches'][0],
-        width: width,
-        height: height,
-    }));
+    pitch.add(
+        new Konva.Image({
+            x: 0,
+            y: 0,
+            image: images['pitches'][0],
+            width: width,
+            height: height,
+        }));
     stage.add(pitch);
 
     /**
@@ -244,7 +253,7 @@ loadImages(sources, function (images) {
             addImage(images['equipments'][selectedImage], pos.x, pos.y);
         } else if (currentMode == 'delete') {
             // don't delete the pitch
-            if (e.target.attrs.width == 640)
+            if (e.target.attrs.width == 830)
                 return;
             e.target.destroy();
             stage.container().style.cursor = currentCursor;
