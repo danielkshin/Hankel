@@ -132,19 +132,7 @@ loadImages(sources, function (images) {
     }
     loadPitches();
 
-    /**
-     * When interacting with objects in `editingLayer`, change cursor to 'move' (drag)
-     */
     let editingLayer = new Konva.Layer();
-    editingLayer.on('mouseenter', function () {
-        if (currentMode == 'players' || currentMode == 'equipments')
-            stage.container().style.cursor = 'move';
-    });
-    editingLayer.on('mouseleave', function () {
-        if (currentMode == 'players' || currentMode == 'equipments')
-            stage.container().style.cursor = currentCursor;
-    });
-
     /**
      * Adds image to `editingLayer`
      * @param {Image} image The image to add (from `images`)
@@ -225,6 +213,7 @@ loadImages(sources, function (images) {
             if (e.target.attrs.width == 640)
                 return;
             e.target.destroy();
+            stage.container().style.cursor = currentCursor;
         }
     });
 
@@ -309,5 +298,30 @@ loadImages(sources, function (images) {
             line.points([original[0], original[1], pos.x, pos.y]);
         }
     });
+
+
+    /**
+     * When interacting with objects in `editingLayer`, change cursor to 'move' (drag)
+     */
+    editingLayer.on('mouseenter', function () {
+        if (currentMode == 'players' || currentMode == 'equipments') {
+            stage.container().style.cursor = 'move';
+        }
+        else if (currentMode == 'delete') {
+            stage.container().style.cursor = 'crosshair';
+        }
+    });
+    editingLayer.on('mouseleave', function () {
+        stage.container().style.cursor = currentCursor;
+    });
+    drawLayer.on('mouseenter', function () {
+        if (currentMode == 'delete') {
+            stage.container().style.cursor = 'crosshair';
+        }
+    });
+    drawLayer.on('mouseleave', function () {
+        stage.container().style.cursor = currentCursor;
+    });
+
 
 });
