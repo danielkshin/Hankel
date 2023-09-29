@@ -12,7 +12,7 @@
 let sources = {
     players: [...Array(8).keys()],
     pitches: [...Array(8).keys()],
-    tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow', 'delete'],
+    tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow', 'delete', 'download'],
     equipments: [0, 1,],
 };
 
@@ -54,6 +54,22 @@ loadImages(sources, function (images) {
     let currentCursor = 'default';
     let draw = false;
 
+
+    function downloadURI(uri, name) {
+        let link = document.createElement('a');
+        link.download = name;
+        link.href = uri;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        delete link;
+    }
+    function downloadImage() {
+        let fileName = prompt('File Name?');
+        let dataURL = stage.toDataURL({ pixelRatio: 3 });
+        downloadURI(dataURL, `${fileName}.png`);
+    }
+
     /**
      * Changes `currentMode` and the cursor to the affiliated icon
      * 
@@ -70,6 +86,10 @@ loadImages(sources, function (images) {
                 i.draggable(false);
             }
         } // change to ternary
+        if (tool == 'download') {
+            downloadImage();
+            return;
+        }
         currentCursor = `url('${images[mode][tool == '' ? selectedImage : tool].src}') 16 16, auto`;
         console.log(currentCursor);
         stage.container().style.cursor = currentCursor;
