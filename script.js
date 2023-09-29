@@ -253,7 +253,7 @@ loadImages(sources, function (images) {
             addImage(images['equipments'][selectedImage], pos.x, pos.y);
         } else if (currentMode == 'delete') {
             // don't delete the pitch
-            if (e.target.attrs.width == 830)
+            if (e.target.attrs.width == width)
                 return;
             e.target.destroy();
             stage.container().style.cursor = currentCursor;
