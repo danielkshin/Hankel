@@ -24,11 +24,12 @@ body {
 
 #pitches {
     background-color: black;
+    width: 650px;
 }
 
 .pitch {
-    width: 80px;
-    padding: 5px;
+    width: 75px;
+    margin: 2px;
 }
 
 .pitch:hover {
