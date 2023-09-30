@@ -12,9 +12,21 @@ body {
     text-align: center;
 }
 
-#players {
+.playersContainer {
     background-color: rgb(220, 220, 220);
+    width: 300px;
+    display: flex;
+}
+
+.players {
     width: 100px;
+    height: 630px;
+    overflow-y: scroll;
+}
+
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
 }
 
 #tools {
@@ -88,6 +100,17 @@ body {
     background-color: rgb(40, 40, 40);
 }
 
+.player {
+    width: 40px;
+    transform: scale(0.7);
+    padding: 5px;
+}
+
+.player:hover {
+    transform: scale(0.85);
+    cursor: pointer;
+}
+
 .equipmentSmall {
     transform: scale(1.0);
     padding: 5px;
@@ -103,10 +126,6 @@ body {
 }
 
 .equipmentLarge:hover {
-    transform: scale(0.9);
-    cursor: pointer;
-}
-
-button:hover {
+    transform: scale(0.85);
     cursor: pointer;
 }

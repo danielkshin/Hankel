@@ -11,7 +11,7 @@
  * folderName (in assets folder): [fileNames or fileIndexes]
  */
 let sources = {
-    players: [...Array(20).keys()],
+    players: [...Array(84).keys()],
     pitches: [...Array(16).keys()],
     tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow', 'delete', 'download'],
     equipments: [...Array(41).keys()],
@@ -110,7 +110,13 @@ loadImages(sources, function (images) {
     function loadMenu() {
         // create player elements
         for (let i of sources['players']) {
-            document.getElementById('players').innerHTML += `<img class="icon" id="player${i}" src="assets/players/${i}.png"></img>`;
+            if (i <= 31) {
+                document.getElementById('team1').innerHTML += `<img class="player" id="player${i}" src="assets/players/${i}.png"></img>`;
+            } else if (i > 31 && i <= 63) {
+                document.getElementById('team2').innerHTML += `<img class="player" id="player${i}" src="assets/players/${i}.png"></img>`;
+            } else {
+                document.getElementById('gk').innerHTML += `<img class="player" id="player${i}" src="assets/players/${i}.png"></img>`;
+            }
         }
         // add event listeners
         for (let i of sources['players']) {
