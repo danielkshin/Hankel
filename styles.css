@@ -37,7 +37,7 @@ body {
 
 #equipments {
     background-color: #369231;
-    width: 280px;
+    width: 290px;
 }
 
 .break {
@@ -65,16 +65,45 @@ body {
 .icon:hover {
     width: 35px;
     height: 35px;
-    background-color: #369231;
     cursor: pointer;
 }
 
-.equipment {
-    transform: scale(0.7);
-    display: absolute;
+.tool {
+    text-align: center;
+    width: 30px;
+    height: 30px;
+    padding: 5px;
+    margin: 5px;
+    margin-bottom: 0px;
 }
 
-.equipment:hover {
+.tool[data-selected=true] {
+    background-color: rgb(45, 45, 45);
+}
+
+.tool:hover {
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    margin: 0px;
+    margin-top: 2.5px;
+}
+
+.equipmentSmall {
+    transform: scale(1.0);
+    padding: 5px;
+}
+
+.equipmentSmall:hover {
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+.equipmentLarge {
+    transform: scale(0.7);
+}
+
+.equipmentLarge:hover {
     transform: scale(0.9);
     cursor: pointer;
 }
