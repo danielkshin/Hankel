@@ -99,7 +99,7 @@ loadImages(sources, function (images) {
             return;
         }
         console.log(images[mode][selectedImage].width);
-        currentCursor = `url('${images[mode][tool == '' ? selectedImage : tool].src}') ${images[mode][tool == '' ? selectedImage : tool].width / 2} ${images[mode][tool == '' ? selectedImage : tool].height / 2}, auto`;
+        currentCursor = tool == '' ? `url('${images[mode][selectedImage].src}') ${images[mode][selectedImage].width / 2} ${images[mode][selectedImage].height / 2}, auto` : 'default';
         stage.container().style.cursor = currentCursor;
         currentMode = tool == '' ? mode : tool;
     }
@@ -122,11 +122,15 @@ loadImages(sources, function (images) {
 
         // create tool elements
         for (let i of sources['tools']) {
-            document.getElementById('tools').innerHTML += `<img class="icon" id="${i}" src="assets/tools/${i}.png"></img>`;
+            document.getElementById('tools').innerHTML += `<img class="tool" id="${i}" src="assets/tools/${i}.png" data-selected="false"></img>`;
         }
         for (let i of sources['tools']) {
             let element = document.getElementById(i);
             element.addEventListener('click', e => {
+                for (let j of sources['tools']) {
+                    document.getElementById(j).dataset.selected = false;
+                }
+                element.dataset.selected = true;
                 selectedImage = i;
                 changeMode('tools', i);
             });
@@ -134,7 +138,7 @@ loadImages(sources, function (images) {
 
         // create equipment elements
         for (let i of sources['equipments']) {
-            document.getElementById('equipments').innerHTML += `<img class="equipment" id="equipment${i}" src="assets/equipments/${i}.png"></img>`;
+            document.getElementById('equipments').innerHTML += `<img class="equipment${images['equipments'][i].width < 20 && images['equipments'][i].height < 20 ? 'Small' : 'Large'}" id="equipment${i}" src="assets/equipments/${i}.png"></img>`;
         }
         // add event listeners
         for (let i of sources['equipments']) {
