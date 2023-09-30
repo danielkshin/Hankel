@@ -98,8 +98,7 @@ loadImages(sources, function (images) {
             downloadImage();
             return;
         }
-        console.log(images[mode][selectedImage].width);
-        currentCursor = tool == '' ? `url('${images[mode][selectedImage].src}') ${images[mode][selectedImage].width / 2} ${images[mode][selectedImage].height / 2}, auto` : 'default';
+        currentCursor = tool == '' ? `url('assets_low/${mode}/${selectedImage}.png') ${images[mode][selectedImage].width * 0.3 / 2} ${images[mode][selectedImage].height * 0.3 / 2}, auto` : 'default';
         stage.container().style.cursor = currentCursor;
         currentMode = tool == '' ? mode : tool;
     }
@@ -147,7 +146,7 @@ loadImages(sources, function (images) {
 
         // create equipment elements
         for (let i of sources['equipments']) {
-            document.getElementById('equipments').innerHTML += `<img class="equipment${images['equipments'][i].width < 20 && images['equipments'][i].height < 20 ? 'Small' : 'Large'}" id="equipment${i}" src="assets/equipments/${i}.png"></img>`;
+            document.getElementById('equipments').innerHTML += `<img class="equipment${images['equipments'][i].width < 20 / 0.3 && images['equipments'][i].height < 20 / 0.3 ? 'Small' : 'Large'}" id="equipment${i}" src="assets_low/equipments/${i}.png"></img>`;
         }
         // add event listeners
         for (let i of sources['equipments']) {
@@ -191,11 +190,12 @@ loadImages(sources, function (images) {
      * @param {Number} y The y position of the image being added
      */
     function addImage(image, x, y) {
-        console.log(image.width);
         graphicsLayer.add(
             new Konva.Image({
-                x: x - image.width / 2,
-                y: y - image.height / 2,
+                width: image.width * 0.3,
+                height: image.height * 0.3,
+                x: x - image.width * 0.3 / 2,
+                y: y - image.height * 0.3 / 2,
                 image: image,
                 draggable: true,
             }));
