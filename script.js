@@ -12,7 +12,7 @@
  */
 let sources = {
     players: [...Array(20).keys()],
-    pitches: [...Array(7).keys()],
+    pitches: [...Array(16).keys()],
     tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow', 'delete', 'download'],
     equipments: [...Array(41).keys()],
 };
@@ -85,7 +85,7 @@ loadImages(sources, function (images) {
      * @param {String} tool (optional) If `mode` is 'tools', the specific tool (text, markup, line...) that `currentMode` and the cursor is changing to
      */
     function changeMode(mode, tool = '') {
-        if (mode == 'players' || mode == 'equipments') {
+        if (mode == 'players' || mode == 'equipments' || tool == 'text') {
             for (i of graphicsLayer.children) {
                 i.draggable(true);
             }
@@ -115,6 +115,9 @@ loadImages(sources, function (images) {
         // add event listeners
         for (let i of sources['players']) {
             document.getElementById(`player${i}`).addEventListener('click', e => {
+                for (let j of sources['tools']) {
+                    document.getElementById(j).dataset.selected = false;
+                }
                 selectedImage = i;
                 changeMode('players');
             });
@@ -143,6 +146,9 @@ loadImages(sources, function (images) {
         // add event listeners
         for (let i of sources['equipments']) {
             document.getElementById(`equipment${i}`).addEventListener('click', e => {
+                for (let j of sources['tools']) {
+                    document.getElementById(j).dataset.selected = false;
+                }
                 selectedImage = i;
                 changeMode('equipments');
             });
@@ -197,6 +203,8 @@ loadImages(sources, function (images) {
      * @param {*} y The y position of the text being added
      */
     function addText(text, x, y) {
+        if (text == null || text == '')
+            return;
         graphicsLayer.add(
             new Konva.Text({
                 x: x,
@@ -220,8 +228,8 @@ loadImages(sources, function (images) {
     let currentCursor = 'default';
     let markup = false;
     let markupLayer = new Konva.Layer();
-    const width = 1960 / 3;
-    const height = 1485 / 3;
+    const width = 650;
+    const height = 500;
 
     // load menus
     loadMenu();
@@ -267,11 +275,12 @@ loadImages(sources, function (images) {
         }
     });
     // markup
+
     stage.on('mousedown touchstart', function () {
         const pos = stage.getPointerPosition();
         originalPosition = {
             x: pos.x,
-            y: pos.y
+            y: pos.y,
         };
         markup = true;
 
@@ -338,7 +347,7 @@ loadImages(sources, function (images) {
      * Change cursor when interacting with objects
      */
     graphicsLayer.on('mouseenter', function () {
-        if (currentMode == 'players' || currentMode == 'equipments') {
+        if (currentMode == 'players' || currentMode == 'equipments' || currentMode == 'text') {
             stage.container().style.cursor = 'move';
         }
         else if (currentMode == 'delete') {
