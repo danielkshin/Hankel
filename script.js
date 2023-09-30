@@ -212,7 +212,7 @@ loadImages(sources, function (images) {
                 text: text,
                 fontSize: 20,
                 fontFamily: 'Open Sans',
-                fill: '#ffffff',
+                fill: '#000000',
                 draggable: true,
             }));
         stage.add(graphicsLayer);
@@ -289,7 +289,7 @@ loadImages(sources, function (images) {
             case 'line':
             case 'dashedLine':
                 line = new Konva.Line({
-                    stroke: '#ffffff',
+                    stroke: '#000000',
                     strokeWidth: 3,
                     globalCompositeOperation: 'source-over',
                     lineCap: 'round',
@@ -301,9 +301,9 @@ loadImages(sources, function (images) {
             case 'arrow':
             case 'dashedArrow':
                 line = new Konva.Arrow({
-                    stroke: '#ffffff',
+                    stroke: '#000000',
                     strokeWidth: 3,
-                    fill: '#ffffff',
+                    fill: '#000000',
                     globalCompositeOperation: 'source-over',
                     lineCap: 'round',
                     lineJoin: 'round',
