@@ -13,13 +13,14 @@ body {
 }
 
 #players {
-    background-color: rgb(80, 80, 80);
+    background-color: rgb(220, 220, 220);
     width: 100px;
 }
 
 #tools {
     background-color: rgb(25, 25, 25);
     width: 50px;
+    margin: 0px;
 }
 
 #pitches {
@@ -70,7 +71,7 @@ body {
 }
 
 .tool {
-    text-align: center;
+    vertical-align: top;
     width: 30px;
     height: 30px;
     padding: 5px;
@@ -79,15 +80,12 @@ body {
 }
 
 .tool[data-selected=true] {
-    background-color: rgb(45, 45, 45);
+    background-color: rgb(50, 50, 50);
 }
 
 .tool:hover {
-    width: 35px;
-    height: 35px;
     cursor: pointer;
-    margin: 0px;
-    margin-top: 2.5px;
+    background-color: rgb(40, 40, 40);
 }
 
 .equipmentSmall {
