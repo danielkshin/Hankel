@@ -2,6 +2,7 @@
  * TO DO:
  * - continue to refine and clean code
  * - refine icons and cursors
+ * - text move bug
  * - actual player/equipment images
  */
 
@@ -10,10 +11,10 @@
  * folderName (in assets folder): [fileNames or fileIndexes]
  */
 let sources = {
-    players: [...Array(8).keys()],
-    pitches: [...Array(8).keys()],
+    players: [...Array(20).keys()],
+    pitches: [...Array(7).keys()],
     tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow', 'delete', 'download'],
-    equipments: [0, 1,],
+    equipments: [...Array(41).keys()],
 };
 
 /**
@@ -97,7 +98,8 @@ loadImages(sources, function (images) {
             downloadImage();
             return;
         }
-        currentCursor = `url('${images[mode][tool == '' ? selectedImage : tool].src}') 16 16, auto`;
+        console.log(images[mode][selectedImage].width);
+        currentCursor = `url('${images[mode][tool == '' ? selectedImage : tool].src}') ${images[mode][tool == '' ? selectedImage : tool].width / 2} ${images[mode][tool == '' ? selectedImage : tool].height / 2}, auto`;
         stage.container().style.cursor = currentCursor;
         currentMode = tool == '' ? mode : tool;
     }
@@ -132,7 +134,7 @@ loadImages(sources, function (images) {
 
         // create equipment elements
         for (let i of sources['equipments']) {
-            document.getElementById('equipments').innerHTML += `<img class="icon" id="equipment${i}" src="assets/equipments/${i}.png"></img>`;
+            document.getElementById('equipments').innerHTML += `<img class="equipment" id="equipment${i}" src="assets/equipments/${i}.png"></img>`;
         }
         // add event listeners
         for (let i of sources['equipments']) {
@@ -173,10 +175,11 @@ loadImages(sources, function (images) {
      * @param {Number} y The y position of the image being added
      */
     function addImage(image, x, y) {
+        console.log(image.width);
         graphicsLayer.add(
             new Konva.Image({
-                x: x - 16,
-                y: y - 16,
+                x: x - image.width / 2,
+                y: y - image.height / 2,
                 image: image,
                 draggable: true,
             }));
@@ -213,8 +216,8 @@ loadImages(sources, function (images) {
     let currentCursor = 'default';
     let markup = false;
     let markupLayer = new Konva.Layer();
-    const width = 830;
-    const height = 580;
+    const width = 1960 / 3;
+    const height = 1485 / 3;
 
     // load menus
     loadMenu();
@@ -349,6 +352,4 @@ loadImages(sources, function (images) {
     markupLayer.on('mouseleave', function () {
         stage.container().style.cursor = currentCursor;
     });
-
-
 });
