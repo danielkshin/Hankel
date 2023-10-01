@@ -236,6 +236,7 @@ loadImages(sources, function (images) {
     let currentCursor = 'default';
     let markup = false;
     let markupLayer = new Konva.Layer();
+    let deleting = false;
     const width = 650;
     const height = 500;
 
@@ -339,6 +340,9 @@ loadImages(sources, function (images) {
                 });
                 markupLayer.add(arrow);
                 break;
+            case 'delete':
+                deleting = true;
+                return;
             default:
                 return;
         }
@@ -347,6 +351,7 @@ loadImages(sources, function (images) {
     });
     stage.on('mouseup touchend', function () {
         markup = false;
+        deleting = false;
     });
     stage.on('mousemove touchmove', function (e) {
         const pos = stage.getPointerPosition();
@@ -378,7 +383,16 @@ loadImages(sources, function (images) {
                     line.setData(computeQuadraticBezierPathData(...[{ "x": originalPosition.x, "y": originalPosition.y }, { "x": originalPosition.x, "y": pos.y }, { "x": pos.x, "y": pos.y },]));
                 }
 
-            //arrow.points([pos.x + (10 - (originalPosition.y - pos.y) / 10), pos.y < line['dataArray'][1]['points'][1] ? pos.y + 2 : pos.y - 2, pos.x, pos.y]);
+                //arrow.points([pos.x + (10 - (originalPosition.y - pos.y) / 10), pos.y < line['dataArray'][1]['points'][1] ? pos.y + 2 : pos.y - 2, pos.x, pos.y]);
+                break;
+            case 'delete':
+                if (deleting == true) {
+                    if (e.target.attrs.width == width)
+                        return;
+                    e.target.destroy();
+                    stage.container().style.cursor = currentCursor;
+                }
+                break;
             default:
                 return;
         }
