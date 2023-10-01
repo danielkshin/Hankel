@@ -6,6 +6,8 @@
  * - actual player/equipment images
  */
 
+// remember 0.3 (30%) is the magic number!
+
 /**
  * Image sources
  * folderName (in assets folder): [fileNames or fileIndexes]
@@ -13,7 +15,7 @@
 let sources = {
     players: [...Array(84).keys()],
     pitches: [...Array(16).keys()],
-    tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow', 'delete', 'download'],
+    tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow', 'delete', 'download', 'curve'],
     equipments: [...Array(41).keys()],
 };
 
@@ -146,7 +148,7 @@ loadImages(sources, function (images) {
 
         // create equipment elements
         for (let i of sources['equipments']) {
-            document.getElementById('equipments').innerHTML += `<img class="equipment${images['equipments'][i].width < 20 / 0.3 && images['equipments'][i].height < 20 / 0.3 ? 'Small' : 'Large'}" id="equipment${i}" src="assets_low/equipments/${i}.png"></img>`;
+            document.getElementById('equipments').innerHTML += `<img class="equipment${images['equipments'][i].width < 15 / 0.3 || images['equipments'][i].height < 15 / 0.3 ? 'Small' : 'Large'}" id="equipment${i}" src="assets_low/equipments/${i}.png"></img>`;
         }
         // add event listeners
         for (let i of sources['equipments']) {
@@ -281,7 +283,10 @@ loadImages(sources, function (images) {
         }
     });
     // markup
-
+    function computeQuadraticBezierPathData(p1, p2, p3) {
+        const pathData = `M${p1.x},${p1.y} Q${p2.x},${p2.y} ${p3.x},${p3.y}`;
+        return pathData;
+    }
     stage.on('mousedown touchstart', function () {
         const pos = stage.getPointerPosition();
         originalPosition = {
@@ -296,7 +301,7 @@ loadImages(sources, function (images) {
             case 'dashedLine':
                 line = new Konva.Line({
                     stroke: '#000000',
-                    strokeWidth: 3,
+                    strokeWidth: 2,
                     globalCompositeOperation: 'source-over',
                     lineCap: 'round',
                     lineJoin: 'round',
@@ -308,13 +313,31 @@ loadImages(sources, function (images) {
             case 'dashedArrow':
                 line = new Konva.Arrow({
                     stroke: '#000000',
-                    strokeWidth: 3,
+                    strokeWidth: 2,
                     fill: '#000000',
                     globalCompositeOperation: 'source-over',
                     lineCap: 'round',
                     lineJoin: 'round',
                     dash: currentMode == 'dashedArrow' ? [15, 10] : [],
                 });
+                break;
+            case 'curve':
+                arrow = new Konva.Arrow({
+                    stroke: '#000000',
+                    strokeWidth: 2,
+                    fill: '#000000',
+                    globalCompositeOperation: 'source-over',
+                    lineCap: 'round',
+                    lineJoin: 'round',
+                });
+                line = new Konva.Path({
+                    stroke: '#000000',
+                    strokeWidth: 2,
+                    globalCompositeOperation: 'source-over',
+                    lineCap: 'round',
+                    lineJoin: 'round',
+                });
+                markupLayer.add(arrow);
                 break;
             default:
                 return;
@@ -343,6 +366,19 @@ loadImages(sources, function (images) {
             case 'dashedArrow':
                 line.points([originalPosition.x, originalPosition.y, pos.x, pos.y]);
                 break;
+            case 'curve':
+                secondPosition = {
+                    "x": pos.x,
+                    "y": pos.y,
+                }
+
+                if (Math.abs(originalPosition.x - pos.x) > Math.abs(originalPosition.y - pos.y)) {
+                    line.setData(computeQuadraticBezierPathData(...[{ "x": originalPosition.x, "y": originalPosition.y }, { "x": pos.x, "y": originalPosition.y }, { "x": pos.x, "y": pos.y },]));
+                } else {
+                    line.setData(computeQuadraticBezierPathData(...[{ "x": originalPosition.x, "y": originalPosition.y }, { "x": originalPosition.x, "y": pos.y }, { "x": pos.x, "y": pos.y },]));
+                }
+
+            //arrow.points([pos.x + (10 - (originalPosition.y - pos.y) / 10), pos.y < line['dataArray'][1]['points'][1] ? pos.y + 2 : pos.y - 2, pos.x, pos.y]);
             default:
                 return;
         }

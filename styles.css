@@ -24,7 +24,7 @@ body {
     overflow-y: scroll;
 }
 
-::-webkit-scrollbar {
+.players::-webkit-scrollbar {
     width: 0px;
     background: transparent;
 }
@@ -51,7 +51,7 @@ body {
 
 #equipments {
     background-color: #369231;
-    width: 290px;
+    width: 230px;
 }
 
 .break {
