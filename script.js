@@ -288,6 +288,12 @@ loadImages(sources, function (images) {
         const pathData = `M${p1.x},${p1.y} Q${p2.x},${p2.y} ${p3.x},${p3.y}`;
         return pathData;
     }
+    function findY(p1, p2, p3, t) {
+        return (1 - t) * (1 - t) * p1.y + 2 * (1 - t) * t * p2.y + t * t * p3.y;
+    }
+    function findX(p1, p2, p3, t) {
+        return (1 - t) * (1 - t) * p1.x + 2 * (1 - t) * t * p2.x + t * t * p3.x;
+    }
     stage.on('mousedown touchstart', function () {
         const pos = stage.getPointerPosition();
         originalPosition = {
@@ -372,19 +378,13 @@ loadImages(sources, function (images) {
                 line.points([originalPosition.x, originalPosition.y, pos.x, pos.y]);
                 break;
             case 'curve':
-                secondPosition = {
-                    "x": pos.x,
-                    "y": pos.y,
-                }
-
-                if (Math.abs(originalPosition.x - pos.x) > Math.abs(originalPosition.y - pos.y)) {
+                if (e.evt.shiftKey) { // Math.abs(originalPosition.x - pos.x) > Math.abs(originalPosition.y - pos.y)
                     line.setData(computeQuadraticBezierPathData(...[{ "x": originalPosition.x, "y": originalPosition.y }, { "x": pos.x, "y": originalPosition.y }, { "x": pos.x, "y": pos.y },]));
+                    arrow.points([findX(...[{ "x": originalPosition.x, "y": originalPosition.y }, { "x": pos.x, "y": originalPosition.y }, { "x": pos.x, "y": pos.y }, 0.875]), findY(...[{ "x": originalPosition.x, "y": originalPosition.y }, { "x": pos.x, "y": originalPosition.y }, { "x": pos.x, "y": pos.y }, 0.875]), pos.x, pos.y]);
                 } else {
                     line.setData(computeQuadraticBezierPathData(...[{ "x": originalPosition.x, "y": originalPosition.y }, { "x": originalPosition.x, "y": pos.y }, { "x": pos.x, "y": pos.y },]));
+                    arrow.points([findX(...[{ "x": originalPosition.x, "y": originalPosition.y }, { "x": originalPosition.x, "y": pos.y }, { "x": pos.x, "y": pos.y }, 0.875]), findY(...[{ "x": originalPosition.x, "y": originalPosition.y }, { "x": originalPosition.x, "y": pos.y }, { "x": pos.x, "y": pos.y }, 0.875]), pos.x, pos.y]);
                 }
-
-                //arrow.points([pos.x + (10 - (originalPosition.y - pos.y) / 10), pos.y < line['dataArray'][1]['points'][1] ? pos.y + 2 : pos.y - 2, pos.x, pos.y]);
-                break;
             case 'delete':
                 if (deleting == true) {
                     if (e.target.attrs.width == width)
