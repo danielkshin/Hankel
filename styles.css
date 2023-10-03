@@ -14,19 +14,34 @@ body {
 
 .playersContainer {
     background-color: rgb(220, 220, 220);
-    width: 300px;
+    width: 315px;
     display: flex;
 }
 
 .players {
-    width: 100px;
+    width: 105px;
     height: 630px;
+    overflow: hidden;
+}
+
+.players:hover {
     overflow-y: scroll;
 }
 
-.players::-webkit-scrollbar {
-    width: 0px;
-    background: transparent;
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgb(240, 240, 240);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgb(150, 150, 150);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgb(100, 100, 100);
 }
 
 #tools {
