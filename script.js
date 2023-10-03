@@ -15,7 +15,7 @@
 let sources = {
     players: [...Array(84).keys()],
     pitches: [...Array(16).keys()],
-    tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow', 'delete', 'download', 'curve'],
+    tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow', 'curvedArrow', 'delete', 'download'],
     equipments: [...Array(41).keys()],
 };
 
@@ -328,7 +328,7 @@ loadImages(sources, function (images) {
                     dash: currentMode == 'dashedArrow' ? [15, 10] : [],
                 });
                 break;
-            case 'curve':
+            case 'curvedArrow':
                 arrow = new Konva.Arrow({
                     stroke: '#000000',
                     strokeWidth: 2,
@@ -377,13 +377,21 @@ loadImages(sources, function (images) {
             case 'dashedArrow':
                 line.points([originalPosition.x, originalPosition.y, pos.x, pos.y]);
                 break;
-            case 'curve':
-                if (e.evt.shiftKey) { // Math.abs(originalPosition.x - pos.x) > Math.abs(originalPosition.y - pos.y)
+            case 'curvedArrow':
+                if (Math.abs(originalPosition.x - pos.x) > Math.abs(originalPosition.y - pos.y)) {
                     line.setData(computeQuadraticBezierPathData(...[{ "x": originalPosition.x, "y": originalPosition.y }, { "x": pos.x, "y": originalPosition.y }, { "x": pos.x, "y": pos.y },]));
                     arrow.points([findX(...[{ "x": originalPosition.x, "y": originalPosition.y }, { "x": pos.x, "y": originalPosition.y }, { "x": pos.x, "y": pos.y }, 0.875]), findY(...[{ "x": originalPosition.x, "y": originalPosition.y }, { "x": pos.x, "y": originalPosition.y }, { "x": pos.x, "y": pos.y }, 0.875]), pos.x, pos.y]);
+                    if (e.evt.shiftKey) {
+                        line.setData(computeQuadraticBezierPathData(...[{ "x": originalPosition.x, "y": originalPosition.y }, { "x": originalPosition.x, "y": pos.y }, { "x": pos.x, "y": pos.y },]));
+                        arrow.points([findX(...[{ "x": originalPosition.x, "y": originalPosition.y }, { "x": originalPosition.x, "y": pos.y }, { "x": pos.x, "y": pos.y }, 0.875]), findY(...[{ "x": originalPosition.x, "y": originalPosition.y }, { "x": originalPosition.x, "y": pos.y }, { "x": pos.x, "y": pos.y }, 0.875]), pos.x, pos.y]);
+                    }
                 } else {
                     line.setData(computeQuadraticBezierPathData(...[{ "x": originalPosition.x, "y": originalPosition.y }, { "x": originalPosition.x, "y": pos.y }, { "x": pos.x, "y": pos.y },]));
                     arrow.points([findX(...[{ "x": originalPosition.x, "y": originalPosition.y }, { "x": originalPosition.x, "y": pos.y }, { "x": pos.x, "y": pos.y }, 0.875]), findY(...[{ "x": originalPosition.x, "y": originalPosition.y }, { "x": originalPosition.x, "y": pos.y }, { "x": pos.x, "y": pos.y }, 0.875]), pos.x, pos.y]);
+                    if (e.evt.shiftKey) {
+                        line.setData(computeQuadraticBezierPathData(...[{ "x": originalPosition.x, "y": originalPosition.y }, { "x": pos.x, "y": originalPosition.y }, { "x": pos.x, "y": pos.y },]));
+                        arrow.points([findX(...[{ "x": originalPosition.x, "y": originalPosition.y }, { "x": pos.x, "y": originalPosition.y }, { "x": pos.x, "y": pos.y }, 0.875]), findY(...[{ "x": originalPosition.x, "y": originalPosition.y }, { "x": pos.x, "y": originalPosition.y }, { "x": pos.x, "y": pos.y }, 0.875]), pos.x, pos.y]);
+                    }
                 }
             case 'delete':
                 if (deleting == true) {
