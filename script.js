@@ -220,7 +220,7 @@ loadImages(sources, function (images) {
                 text: text,
                 fontSize: 20,
                 fontFamily: 'Open Sans',
-                fill: '#000000',
+                fill: document.getElementById('colorPicker').value,
                 draggable: true,
             }));
         stage.add(graphicsLayer);
@@ -297,7 +297,7 @@ loadImages(sources, function (images) {
             case 'line':
             case 'dashedLine':
                 line = new Konva.Line({
-                    stroke: '#000000',
+                    stroke: document.getElementById('colorPicker').value,
                     strokeWidth: 2,
                     globalCompositeOperation: 'source-over',
                     lineCap: 'round',
@@ -309,9 +309,9 @@ loadImages(sources, function (images) {
             case 'arrow':
             case 'dashedArrow':
                 line = new Konva.Arrow({
-                    stroke: '#000000',
+                    stroke: document.getElementById('colorPicker').value,
                     strokeWidth: 2,
-                    fill: '#000000',
+                    fill: document.getElementById('colorPicker').value,
                     globalCompositeOperation: 'source-over',
                     lineCap: 'round',
                     lineJoin: 'round',
@@ -321,9 +321,9 @@ loadImages(sources, function (images) {
             case 'curvedArrow':
             case 'dashedCurvedArrow':
                 line = new Konva.Arrow({
-                    stroke: '#000000',
+                    stroke: document.getElementById('colorPicker').value,
                     strokeWidth: 2,
-                    fill: '#000000',
+                    fill: document.getElementById('colorPicker').value,
                     globalCompositeOperation: 'source-over',
                     lineCap: 'round',
                     lineJoin: 'round',

@@ -9,6 +9,12 @@ body {
     user-select: none;
 }
 
+input[type="color"] {
+    border-radius: 5px;
+    width: 40px;
+    height: 40px;
+}
+
 .menu {
     text-align: center;
 }
