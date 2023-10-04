@@ -1,11 +1,3 @@
-/**
- * TO DO:
- * - continue to refine and clean code
- * - refine icons and cursors
- * - text move bug
- * - actual player/equipment images
- */
-
 // remember 0.3 (30%) is the magic number!
 
 /**
@@ -112,11 +104,11 @@ loadImages(sources, function (images) {
         // create player elements
         for (let i of sources['players']) {
             if (i <= 31) {
-                document.getElementById('team1').innerHTML += `<img class="player" id="player${i}" src="assets/players/${i}.png"></img>`;
+                document.getElementById('team1').innerHTML += `<img class="player" id="player${i}" src="assets/players/${i}.png" draggable="false"></img>`;
             } else if (i > 31 && i <= 63) {
-                document.getElementById('team2').innerHTML += `<img class="player" id="player${i}" src="assets/players/${i}.png"></img>`;
+                document.getElementById('team2').innerHTML += `<img class="player" id="player${i}" src="assets/players/${i}.png" draggable="false"></img>`;
             } else {
-                document.getElementById('gk').innerHTML += `<img class="player" id="player${i}" src="assets/players/${i}.png"></img>`;
+                document.getElementById('gk').innerHTML += `<img class="player" id="player${i}" src="assets/players/${i}.png" draggable="false"></img>`;
             }
         }
         // add event listeners
@@ -132,7 +124,7 @@ loadImages(sources, function (images) {
 
         // create tool elements
         for (let i of sources['tools']) {
-            document.getElementById('tools').innerHTML += `<img class="tool" id="${i}" src="assets/tools/${i}.png" data-selected="false"></img>`;
+            document.getElementById('tools').innerHTML += `<img class="tool" id="${i}" src="assets/tools/${i}.png" data-selected="false" draggable="false"></img>`;
         }
         for (let i of sources['tools']) {
             let element = document.getElementById(i);
@@ -148,7 +140,7 @@ loadImages(sources, function (images) {
 
         // create equipment elements
         for (let i of sources['equipments']) {
-            document.getElementById('equipments').innerHTML += `<img class="equipment${images['equipments'][i].width < 15 / 0.3 || images['equipments'][i].height < 15 / 0.3 ? 'Small' : 'Large'}" id="equipment${i}" src="assets_low/equipments/${i}.png"></img>`;
+            document.getElementById('equipments').innerHTML += `<img class="equipment${images['equipments'][i].width < 15 / 0.3 || images['equipments'][i].height < 15 / 0.3 ? 'Small' : 'Large'}" id="equipment${i}" src="assets_low/equipments/${i}.png" draggable="false"></img>`;
         }
         // add event listeners
         for (let i of sources['equipments']) {
@@ -167,7 +159,7 @@ loadImages(sources, function (images) {
      */
     function loadPitches() {
         for (let i of sources['pitches']) {
-            document.getElementById('pitches').innerHTML += `<img class="pitch" id="pitch${i}" src="assets/pitches/${i}.png"></img>`;
+            document.getElementById('pitches').innerHTML += `<img class="pitch" id="pitch${i}" src="assets/pitches/${i}.png" draggable="false"></img>`;
         }
         for (let i of sources['pitches']) {
             document.getElementById(`pitch${i}`).addEventListener('click', e => {
