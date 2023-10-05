@@ -7,7 +7,7 @@
 let sources = {
     players: [...Array(84).keys()],
     pitches: [...Array(16).keys()],
-    tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow', 'curvedArrow', 'dashedCurvedArrow', 'delete', 'download'],
+    tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow', 'curvedArrow', 'dashedCurvedArrow', 'move', 'delete', 'download'],
     equipments: [...Array(41).keys()],
 };
 
@@ -102,14 +102,8 @@ loadImages(sources, function (images) {
      * @param {String} tool (optional) If `mode` is 'tools', the specific tool (text, markup, line...) that `currentMode` and the cursor is changing to
      */
     function changeMode(mode, tool = '') {
-        if (mode == 'players' || mode == 'equipments' || tool == 'text') {
-            for (i of graphicsLayer.children) {
-                i.draggable(true);
-            }
-        } else {
-            for (i of graphicsLayer.children) {
-                i.draggable(false);
-            }
+        for (i of graphicsLayer.children) {
+            i.draggable(mode == 'players' || mode == 'equipments' || tool == 'text' || tool == 'move');
         }
         if (tool == 'download') {
             downloadImage();
@@ -408,7 +402,7 @@ loadImages(sources, function (images) {
      * Change cursor when interacting with objects
      */
     graphicsLayer.on('mouseenter', function () {
-        if (currentMode == 'players' || currentMode == 'equipments' || currentMode == 'text') {
+        if (currentMode == 'players' || currentMode == 'equipments' || currentMode == 'text' || currentMode == 'move') {
             stage.container().style.cursor = 'move';
         }
         else if (currentMode == 'delete') {
