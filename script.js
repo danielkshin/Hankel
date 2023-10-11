@@ -1,5 +1,3 @@
-// remember 0.3 (30%) is the magic number!
-
 /**
  * Image sources
  * folderName (in assets folder): [fileNames or fileIndexes]
@@ -130,7 +128,7 @@ loadImages(sources, function (images) {
         }
         // add event listeners
         for (let i of sources['players']) {
-            document.getElementById(`player${i}`).addEventListener('click', e => {
+            document.getElementById(`player${i}`).addEventListener('click', function () {
                 for (let j of sources['tools']) {
                     document.getElementById(j).dataset.selected = false;
                 }
@@ -145,7 +143,7 @@ loadImages(sources, function (images) {
         }
         for (let i of sources['tools']) {
             let element = document.getElementById(i);
-            element.addEventListener('click', e => {
+            element.addEventListener('click', function () {
                 for (let j of sources['tools']) {
                     document.getElementById(j).dataset.selected = false;
                 }
@@ -161,7 +159,7 @@ loadImages(sources, function (images) {
         }
         // add event listeners
         for (let i of sources['equipments']) {
-            document.getElementById(`equipment${i}`).addEventListener('click', e => {
+            document.getElementById(`equipment${i}`).addEventListener('click', function () {
                 for (let j of sources['tools']) {
                     document.getElementById(j).dataset.selected = false;
                 }
@@ -179,7 +177,7 @@ loadImages(sources, function (images) {
             document.getElementById('pitches').innerHTML += `<img class="pitch" id="pitch${i}" src="assets/pitches/${i}.png" draggable="false"></img>`;
         }
         for (let i of sources['pitches']) {
-            document.getElementById(`pitch${i}`).addEventListener('click', e => {
+            document.getElementById(`pitch${i}`).addEventListener('click', function () {
                 pitch.clear();
                 pitch.add(
                     new Konva.Image({
@@ -188,7 +186,8 @@ loadImages(sources, function (images) {
                         image: images['pitches'][i],
                         width: width,
                         height: height,
-                    }));
+                    })
+                );
             });
         }
     }
@@ -209,7 +208,8 @@ loadImages(sources, function (images) {
                 y: y - image.height * 0.3 / 2,
                 image: image,
                 draggable: true,
-            }));
+            })
+        );
         stage.add(graphicsLayer);
     }
 
@@ -231,7 +231,8 @@ loadImages(sources, function (images) {
                 fontFamily: 'Open Sans',
                 fill: document.getElementById('colorPicker').value,
                 draggable: true,
-            }));
+            })
+        );
         stage.add(graphicsLayer);
     }
 
@@ -269,7 +270,8 @@ loadImages(sources, function (images) {
             image: images['pitches'][0],
             width: width,
             height: height,
-        }));
+        })
+    );
     stage.add(pitch);
 
     /**
