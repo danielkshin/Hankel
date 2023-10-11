@@ -82,7 +82,7 @@ loadImages(sources, function (images) {
                     y: height + 5,
                     width: width - 10,
                     height: 190,
-                    text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Quam nulla porttitor massa id neque. Curabitur gravida arcu ac tortor dignissim. Maecenas pharetra convallis posuere morbi leo urna molestie. Mauris ultrices eros in cursus turpis massa tincidunt. Ac orci phasellus egestas tellus rutrum. Porttitor lacus luctus accumsan tortor. Mollis aliquam ut porttitor leo a diam sollicitudin. Pellentesque id nibh tortor id aliquet. Nibh sed pulvinar proin gravida hendrerit lectus a. Eu sem integer vitae justo eget. Suspendisse faucibus interdum posuere lorem ipsum dolor. Scelerisque eleifend donec pretium vulputate sapien nec sagittis aliquam malesuada. Vitae nunc sed velit dignissim sodales. Eu volutpat odio facilisis mauris sit amet massa.',
+                    text: document.getElementById('notesInput').value,
                     fontSize: 15,
                     fontFamily: 'Open Sans',
                 })
@@ -421,5 +421,12 @@ loadImages(sources, function (images) {
     });
     markupLayer.on('mouseleave', function () {
         stage.container().style.cursor = currentCursor;
+    });
+
+    /**
+     * Enable notes in image once typed in
+     */
+    document.getElementById('notesInput').addEventListener('input', function () {
+        document.getElementById('notesOption').checked = true;
     });
 });
