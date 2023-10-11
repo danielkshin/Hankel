@@ -93,6 +93,7 @@ body {
 
 #colorPicker::-webkit-color-swatch {
     border-radius: 5px;
+    border-width: 2px;
     border-color: #ffffff;
 }
 
@@ -141,6 +142,9 @@ body {
 #notesInput {
     margin-top: 10px;
     font-family: 'Open Sans';
-    width: 700px;
     resize: none;
+    width: 700px;
+    border-width: 2px;
+    border-radius: 5px;
+
 }
