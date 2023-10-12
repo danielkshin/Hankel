@@ -296,7 +296,6 @@ loadImages(sources, function (images) {
         } else if (currentMode == 'equipments') {
             addImage(images['equipments'][selectedImage], pos.x, pos.y);
         } else if (currentMode == 'delete') {
-            console.log((e.target))
             // Prevent deletion of the pitch
             if (e.target.attrs.width == width)
                 return;
