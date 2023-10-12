@@ -70,7 +70,7 @@ loadImages(sources, function (images) {
             return;
 
         // Add notes to image if the option is checked
-        if (document.getElementById('notesOption').checked == true) {
+        if (document.getElementById('notesOption').checked) {
             stage.height(700);
             pitch.add(
                 new Konva.Rect({
@@ -396,7 +396,7 @@ loadImages(sources, function (images) {
                     }
                 }
             case 'delete':
-                if (deleting == true) {
+                if (deleting) {
                     if (e.target.attrs.width == width)
                         return;
                     e.target.destroy();
