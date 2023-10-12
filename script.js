@@ -64,11 +64,9 @@ loadImages(sources, function (images) {
      */
     function downloadImage() {
         let fileName = prompt('File Name:');
-
         // Do nothing if the file name is not provided
         if (fileName == null)
             return;
-
         // Add notes to image if the option is checked
         if (document.getElementById('notesOption').checked) {
             stage.height(700);
