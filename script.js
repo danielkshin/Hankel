@@ -64,9 +64,12 @@ loadImages(sources, function (images) {
      */
     function downloadImage() {
         let fileName = prompt('File Name:');
+
+        // Do nothing if the file name is not provided
         if (fileName == null)
             return;
 
+        // Add notes to image if the option is checked
         if (document.getElementById('notesOption').checked == true) {
             stage.height(700);
             pitch.add(
@@ -97,16 +100,19 @@ loadImages(sources, function (images) {
      * Changes `currentMode` and the cursor to the affiliated icon
      * 
      * @param {String} mode The mode (players, tools, or equipments) that `currentMode` and the cursor is changing to
-     * @param {String} tool (optional) If `mode` is 'tools', the specific tool (text, markup, line...) that `currentMode` and the cursor is changing to
+     * @param {String} tool (optional) If `mode` is 'tools', the specific tool (draw, text, line...) that `currentMode` and the cursor is changing to
      */
     function changeMode(mode, tool = '') {
+        // Make graphics draggable depending on the mode/tool
         for (i of graphicsLayer.children) {
             i.draggable(mode == 'players' || mode == 'equipments' || tool == 'text' || tool == 'move');
         }
+        // Donwload image if the mode is 'download'
         if (tool == 'download') {
             downloadImage();
             return;
         }
+        // Change the cursor and the current mode
         currentCursor = tool == '' ? `url('assets_low/${mode}/${selectedImage}.png') ${images[mode][selectedImage].width * 0.3 / 2} ${images[mode][selectedImage].height * 0.3 / 2}, auto` : 'default';
         stage.container().style.cursor = currentCursor;
         currentMode = tool == '' ? mode : tool;
@@ -116,7 +122,7 @@ loadImages(sources, function (images) {
      * Loads the menu by adding icons and event listeners
      */
     function loadMenu() {
-        // create player elements
+        // Create player elements
         for (let i of sources['players']) {
             if (i <= 31) {
                 document.getElementById('team1').innerHTML += `<img class="player" id="player${i}" src="assets/players/${i}.png" draggable="false"></img>`;
@@ -126,7 +132,7 @@ loadImages(sources, function (images) {
                 document.getElementById('gk').innerHTML += `<img class="player" id="player${i}" src="assets/players/${i}.png" draggable="false"></img>`;
             }
         }
-        // add event listeners
+        // Add event listeners
         for (let i of sources['players']) {
             document.getElementById(`player${i}`).addEventListener('click', function () {
                 for (let j of sources['tools']) {
@@ -137,7 +143,7 @@ loadImages(sources, function (images) {
             });
         }
 
-        // create tool elements
+        // Create tool elements
         for (let i of sources['tools']) {
             document.getElementById('tools').innerHTML += `<img class="tool" id="${i}" src="assets/tools/${i}.png" data-selected="false" draggable="false"></img>`;
         }
@@ -153,11 +159,11 @@ loadImages(sources, function (images) {
             });
         }
 
-        // create equipment elements
+        // Create equipment elements
         for (let i of sources['equipments']) {
             document.getElementById('equipments').innerHTML += `<img class="equipment${images['equipments'][i].width < 15 / 0.3 || images['equipments'][i].height < 15 / 0.3 ? 'Small' : 'Large'}" id="equipment${i}" src="assets_low/equipments/${i}.png" draggable="false"></img>`;
         }
-        // add event listeners
+        // Add event listeners
         for (let i of sources['equipments']) {
             document.getElementById(`equipment${i}`).addEventListener('click', function () {
                 for (let j of sources['tools']) {
@@ -173,9 +179,11 @@ loadImages(sources, function (images) {
      * Loads the pitches menu by adding pitches and event listeners
      */
     function loadPitches() {
+        // Create pitches elements
         for (let i of sources['pitches']) {
             document.getElementById('pitches').innerHTML += `<img class="pitch" id="pitch${i}" src="assets/pitches/${i}.png" draggable="false"></img>`;
         }
+        // Add event listeners
         for (let i of sources['pitches']) {
             document.getElementById(`pitch${i}`).addEventListener('click', function () {
                 pitch.clear();
@@ -220,6 +228,7 @@ loadImages(sources, function (images) {
      * @param {*} y The y position of the text being added
      */
     function addText(text, x, y) {
+        // Do nothing if no text is provided
         if (text == null || text == '')
             return;
         graphicsLayer.add(
@@ -240,7 +249,7 @@ loadImages(sources, function (images) {
      * Main code starts here
      */
 
-    // variables
+    // Set up variables
     let selectedImage;
     let currentMode = 'none';
     let currentCursor = 'default';
@@ -250,18 +259,18 @@ loadImages(sources, function (images) {
     const width = 650;
     const height = 500;
 
-    // load menus
+    // Load the menus
     loadMenu();
     loadPitches();
 
-    // create the main stage
+    // Create the main stage
     let stage = new Konva.Stage({
         container: 'planner',
         width: width,
         height: height,
     });
 
-    // add the pitch to the stage
+    // Add the pitch to the stage
     let pitch = new Konva.Layer();
     pitch.add(
         new Konva.Image({
@@ -277,7 +286,7 @@ loadImages(sources, function (images) {
     /**
      * Interacting with the stage
      */
-    // graphics
+    // Graphics
     stage.on('click tap', function (e) {
         let pos = stage.getRelativePointerPosition();
         if (currentMode == 'players') {
@@ -287,14 +296,15 @@ loadImages(sources, function (images) {
         } else if (currentMode == 'equipments') {
             addImage(images['equipments'][selectedImage], pos.x, pos.y);
         } else if (currentMode == 'delete') {
-            // don't delete the pitch
+            console.log((e.target))
+            // Prevent deletion of the pitch
             if (e.target.attrs.width == width)
                 return;
             e.target.destroy();
             stage.container().style.cursor = currentCursor;
         }
     });
-    // markup
+    // Markup
     stage.on('mousedown touchstart', function () {
         const pos = stage.getPointerPosition();
         originalPosition = {
