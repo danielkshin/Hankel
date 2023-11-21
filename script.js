@@ -159,7 +159,10 @@ loadImages(sources, function (images) {
 
         // Create equipment elements
         for (let i of sources['equipments']) {
-            document.getElementById('equipments').innerHTML += `<img class="equipment${images['equipments'][i].width < 15 / 0.3 || images['equipments'][i].height < 15 / 0.3 ? 'Small' : 'Large'}" id="equipment${i}" src="assets_low/equipments/${i}.png" draggable="false"></img>`;
+            document.getElementById('equipments').innerHTML += `<img class="equipment${images['equipments'][i].width < 15 / 0.3 || images['equipments'][i].height < 14 / 0.3 ? 'Small' : 'Large'}" id="equipment${i}" src="assets_low/equipments/${i}.png" draggable="false"></img>`;
+            if (i == 6 || i == 15 || i == 22 || i == 28 || i == 32 || i == 36) {
+                document.getElementById('equipments').innerHTML += '<br>';
+            }
         }
         // Add event listeners
         for (let i of sources['equipments']) {
