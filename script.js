@@ -219,7 +219,6 @@ loadImages(sources, function (images) {
                 draggable: true,
             })
         );
-        stage.add(graphicsLayer);
     }
 
     /**
@@ -243,7 +242,6 @@ loadImages(sources, function (images) {
                 draggable: true,
             })
         );
-        stage.add(graphicsLayer);
     }
 
     /**
@@ -283,6 +281,10 @@ loadImages(sources, function (images) {
         })
     );
     stage.add(pitch);
+
+    // Add graphics and markup layer to the stage
+    stage.add(graphicsLayer);
+    stage.add(markupLayer);
 
     /**
      * Interacting with the stage
@@ -359,7 +361,6 @@ loadImages(sources, function (images) {
                 return;
         }
         markupLayer.add(line);
-        stage.add(markupLayer);
     });
     stage.on('mouseup touchend', function () {
         markup = false;
