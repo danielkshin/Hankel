@@ -136,6 +136,7 @@ loadImages(sources, function (images) {
         downloadURI('data:text/json;charset=utf-8,' + encodeURIComponent(stage.toJSON()), `${fileName}.json`);
     }
 
+
     /**
      * Changes `currentMode` and the cursor to the affiliated icon
      * 
@@ -158,13 +159,6 @@ loadImages(sources, function (images) {
         } else if (tool == 'uploadJSON') {
             const uploadFile = document.getElementById('uploadFile');
             uploadFile.click();
-            if (uploadFile.files.length > 0) {
-                let reader = new FileReader();
-                reader.onload = function () {
-                    let fileContent = JSON.parse(reader.result);
-                    console.log(fileContent);
-                };
-            }
             return;
         }
         // Change the cursor and the current mode
@@ -260,7 +254,7 @@ loadImages(sources, function (images) {
 
     let graphicsLayer = new Konva.Layer();
     /**
-     * Adds image to `graphicsLayer`
+     * Adds image to `graphicsLayer` (rewrite)
      * @param {Image} image The image to add (from `images`)
      * @param {Number} x The x position of the image being added
      * @param {Number} y The y position of the image being added
@@ -345,6 +339,20 @@ loadImages(sources, function (images) {
     stage.add(pitchLayer);
     stage.add(graphicsLayer);
     stage.add(markupLayer);
+
+    json = prompt('json');
+    if (json != null) {
+        stage = Konva.Node.create(json, 'planner');
+        stage.find('Image').forEach((imageNode) => {
+            imageNode.image(images[imageNode.getAttr('imageType')][imageNode.getAttr('index')]);
+        });
+        document.getElementById('notesInput').value = stage.getAttr('notes');
+        pitch = stage.children[0];
+        if (stage.children[1] != undefined)
+            graphicsLayer = stage.children[1];
+        if (stage.children[2] != undefined)
+            markupLayer = stage.children[2];
+    }
 
     /**
      * Interacting with the stage
@@ -499,5 +507,29 @@ loadImages(sources, function (images) {
      */
     document.getElementById('notesInput').addEventListener('input', function () {
         document.getElementById('notesOption').checked = true;
+    });
+
+    /**
+     * On JSON upload (rewrite)
+     */
+    document.getElementById('uploadFile').addEventListener('change', function (e) {
+        if (uploadFile.files.length > 0) {
+            let reader = new FileReader();
+            reader.readAsText(uploadFile.files[0]);
+            reader.onload = function () {
+                let json = JSON.parse(reader.result);
+                console.log(json);
+                stage = Konva.Node.create(json, 'planner');
+                stage.find('Image').forEach((imageNode) => {
+                    imageNode.image(images[imageNode.getAttr('imageType')][imageNode.getAttr('index')]);
+                });
+                document.getElementById('notesInput').value = stage.getAttr('notes');
+                pitch = stage.children[0];
+                if (stage.children[1] != undefined)
+                    graphicsLayer = stage.children[1];
+                if (stage.children[2] != undefined)
+                    markupLayer = stage.children[2];
+            };
+        }
     });
 });
