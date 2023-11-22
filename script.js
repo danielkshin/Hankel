@@ -126,6 +126,17 @@ loadImages(sources, function (images) {
     }
 
     /**
+     * Downloads the stage as JSON
+     */
+    function downloadJSON() {
+        let fileName = prompt('File Name:');
+        // Do nothing if the file name is not provided
+        if (fileName == null)
+            return;
+        downloadURI('data:text/json;charset=utf-8,' + encodeURIComponent(stage.toJSON()), `${fileName}.json`);
+    }
+
+    /**
      * Changes `currentMode` and the cursor to the affiliated icon
      * 
      * @param {String} mode The mode (players, tools, or equipments) that `currentMode` and the cursor is changing to
@@ -136,9 +147,24 @@ loadImages(sources, function (images) {
         for (i of graphicsLayer.children) {
             i.draggable(mode == 'players' || mode == 'equipments' || tool == 'text' || tool == 'move');
         }
-        // Donwload image if the mode is 'download'
+        // Download image, download JSON, or upload JSON depending on mode
         if (tool == 'download') {
             downloadImage();
+            return;
+        } else if (tool == 'downloadJSON') {
+            stage.setAttr('notes', document.getElementById('notesInput').value);
+            downloadJSON();
+            return;
+        } else if (tool == 'uploadJSON') {
+            const uploadFile = document.getElementById('uploadFile');
+            uploadFile.click();
+            if (uploadFile.files.length > 0) {
+                let reader = new FileReader();
+                reader.onload = function () {
+                    let fileContent = JSON.parse(reader.result);
+                    console.log(fileContent);
+                };
+            }
             return;
         }
         // Change the cursor and the current mode
