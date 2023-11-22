@@ -5,7 +5,7 @@
 let sources = {
     players: [...Array(84).keys()],
     pitches: [...Array(16).keys()],
-    tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow', 'curvedArrow', 'dashedCurvedArrow', 'move', 'delete', 'download'],
+    tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow', 'curvedArrow', 'dashedCurvedArrow', 'move', 'delete', 'download', 'downloadJSON', 'uploadJSON'],
     equipments: [...Array(41).keys()],
 };
 
