@@ -65,7 +65,7 @@ loadImages(sources, function (images) {
     function addNotes() {
         if (document.getElementById('notesOption').checked) {
             stage.height(700);
-            pitch.add(
+            pitchLayer.add(
                 new Konva.Rect({
                     x: 0,
                     y: height,
@@ -244,8 +244,8 @@ loadImages(sources, function (images) {
         // Add event listeners
         for (let i of sources['pitches']) {
             document.getElementById(`pitch${i}`).addEventListener('click', function () {
-                pitch.clear();
-                pitch.add(
+                pitchLayer.clear();
+                pitchLayer.add(
                     new Konva.Image({
                         x: 0,
                         y: 0,
@@ -265,17 +265,19 @@ loadImages(sources, function (images) {
      * @param {Number} x The x position of the image being added
      * @param {Number} y The y position of the image being added
      */
-    function addImage(image, x, y) {
-        graphicsLayer.add(
-            new Konva.Image({
-                width: image.width * 0.3,
-                height: image.height * 0.3,
-                x: x - image.width * 0.3 / 2,
-                y: y - image.height * 0.3 / 2,
-                image: image,
-                draggable: true,
-            })
-        );
+    function addImage(type, index, x, y) {
+        image = images[type][index];
+        imageToAdd = new Konva.Image({
+            width: image.width * 0.3,
+            height: image.height * 0.3,
+            x: x - image.width * 0.3 / 2,
+            y: y - image.height * 0.3 / 2,
+            image: image,
+            draggable: true,
+        });
+        imageToAdd.setAttr('imageType', type);
+        imageToAdd.setAttr('index', index);
+        graphicsLayer.add(imageToAdd);
     }
 
     /**
@@ -326,20 +328,21 @@ loadImages(sources, function (images) {
         height: height,
     });
 
-    // Add the pitch to the stage
-    let pitch = new Konva.Layer();
-    pitch.add(
-        new Konva.Image({
-            x: 0,
-            y: 0,
-            image: images['pitches'][0],
-            width: width,
-            height: height,
-        })
-    );
-    stage.add(pitch);
+    // Create pitch layer
+    let pitchLayer = new Konva.Layer();
+    let pitchImage = new Konva.Image({
+        x: 0,
+        y: 0,
+        image: images['pitches'][0],
+        width: width,
+        height: height,
+    });
+    pitchImage.setAttr('imageType', 'pitches');
+    pitchImage.setAttr('index', 0);
+    pitchLayer.add(pitchImage);
 
-    // Add graphics and markup layer to the stage
+    // Add pitch, graphics, and markup layer to the stage
+    stage.add(pitchLayer);
     stage.add(graphicsLayer);
     stage.add(markupLayer);
 
@@ -350,11 +353,11 @@ loadImages(sources, function (images) {
     stage.on('click tap', function (e) {
         let pos = stage.getRelativePointerPosition();
         if (currentMode == 'players') {
-            addImage(images['players'][selectedImage], pos.x, pos.y);
+            addImage('players', selectedImage, pos.x, pos.y);
         } else if (currentMode == 'text') {
             addText(prompt('Add text:'), pos.x, pos.y);
         } else if (currentMode == 'equipments') {
-            addImage(images['equipments'][selectedImage], pos.x, pos.y);
+            addImage('equipments', selectedImage, pos.x, pos.y);
         } else if (currentMode == 'delete') {
             // Prevent deletion of the pitch
             if (e.target.attrs.width == width)
