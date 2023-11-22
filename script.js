@@ -60,13 +60,12 @@ loadImages(sources, function (images) {
     }
 
     /**
-     * Downloads the stage as an image
+     * Add notes to image
      */
-    async function downloadImage() {
-        // Add notes to image if the option is checked
+    function addNotes() {
         if (document.getElementById('notesOption').checked) {
-            await stage.height(700);
-            await pitch.add(
+            stage.height(700);
+            pitch.add(
                 new Konva.Rect({
                     x: 0,
                     y: height,
@@ -85,8 +84,13 @@ loadImages(sources, function (images) {
                 })
             );
         }
+    }
 
-        const image = await new Promise((res) => stage.toCanvas().toBlob(res));
+    /**
+     * Downloads the stage as an image
+     */
+    async function downloadImage() {
+        // If the browser supports the Files System Access API
         if (window.showSaveFilePicker) {
             const handle = await showSaveFilePicker({
                 types: [
@@ -98,16 +102,24 @@ loadImages(sources, function (images) {
                     },
                 ],
             });
+
+            await addNotes();
+
+            let image = await new Promise((res) => stage.toCanvas().toBlob(res));
             const writable = await handle.createWritable();
             await writable.write(image);
             writable.close();
         }
+        // If the browser does not support the Files System Access API
         else {
-            const saveImg = document.createElement('a');
-            saveImg.href = URL.createObjectURL(image);
-            saveImg.download = 'image.png';
-            saveImg.click();
-            setTimeout(() => URL.revokeObjectURL(saveImg.href), 60000);
+            await addNotes();
+
+            const fileName = prompt('File Name:');
+            // Do nothing if user cancels prompt
+            if (fileName == null)
+                return;
+            const dataURL = stage.toDataURL({ pixelRatio: 3 });
+            await downloadURI(dataURL, `${fileName}.png`);
         }
 
         await stage.height(500);
