@@ -62,7 +62,7 @@ loadImages(sources, function (images) {
     /**
      * Downloads the stage as an image and prompts the user for the file name
      */
-    function downloadImage() {
+    /**function downloadImage() {
         let fileName = prompt('File Name:');
         // Do nothing if the file name is not provided
         if (fileName == null)
@@ -90,8 +90,34 @@ loadImages(sources, function (images) {
             );
         }
         let dataURL = stage.toDataURL({ pixelRatio: 3 });
+
         downloadURI(dataURL, `${fileName}.png`);
         stage.height(500);
+    }**/
+    async function downloadImage() {
+        const image = await new Promise((res) => stage.toCanvas().toBlob(res));
+        if (window.showSaveFilePicker) {
+            const handle = await showSaveFilePicker({
+                types: [
+                    {
+                        description: 'PNG File',
+                        accept: {
+                            'image/png': ['.png'],
+                        },
+                    },
+                ],
+            });
+            const writable = await handle.createWritable();
+            await writable.write(image);
+            writable.close();
+        }
+        else {
+            const saveImg = document.createElement('a');
+            saveImg.href = URL.createObjectURL(image);
+            saveImg.download = 'image.png';
+            saveImg.click();
+            setTimeout(() => URL.revokeObjectURL(saveImg.href), 60000);
+        }
     }
 
     /**
