@@ -60,40 +60,8 @@ loadImages(sources, function (images) {
     }
 
     /**
-     * Downloads the stage as an image and prompts the user for the file name
+     * Downloads the stage as an image
      */
-    /**function downloadImage() {
-        let fileName = prompt('File Name:');
-        // Do nothing if the file name is not provided
-        if (fileName == null)
-            return;
-        // Add notes to image if the option is checked
-        if (document.getElementById('notesOption').checked) {
-            stage.height(700);
-            pitch.add(
-                new Konva.Rect({
-                    x: 0,
-                    y: height,
-                    width: width,
-                    height: 200,
-                    fill: 'white',
-                }),
-                new Konva.Text({
-                    x: 5,
-                    y: height + 5,
-                    width: width - 10,
-                    height: 190,
-                    text: document.getElementById('notesInput').value,
-                    fontSize: 15,
-                    fontFamily: 'Open Sans',
-                })
-            );
-        }
-        let dataURL = stage.toDataURL({ pixelRatio: 3 });
-
-        downloadURI(dataURL, `${fileName}.png`);
-        stage.height(500);
-    }**/
     async function downloadImage() {
         // Add notes to image if the option is checked
         if (document.getElementById('notesOption').checked) {
