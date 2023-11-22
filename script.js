@@ -286,8 +286,8 @@ loadImages(sources, function (images) {
     let markup = false;
     let markupLayer = new Konva.Layer();
     let deleting = false;
-    const width = 650;
-    const height = 500;
+    const width = 675;
+    const height = 520;
 
     // Load the menus
     loadMenu();
