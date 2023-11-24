@@ -9,6 +9,11 @@ body {
     user-select: none;
 }
 
+a {
+    color: #79c086;
+    text-decoration: none;
+}
+
 .break {
     flex-basis: 100%;
 }
@@ -19,7 +24,7 @@ header {
     column-gap: 5px;
 }
 
-.logo {
+header img {
     width: 40px;
     height: 40px;
 }
@@ -158,4 +163,11 @@ header {
     height: 300px;
     border-width: 2px;
     border-radius: 5px;
+}
+
+footer {
+    display: flex;
+    padding-top: 20px;
+    font-size: 11px;
+    text-align: center;
 }
