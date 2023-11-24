@@ -128,12 +128,32 @@ loadImages(sources, function (images) {
     /**
      * Downloads the stage as JSON
      */
-    function downloadJSON() {
-        let fileName = prompt('File Name:');
-        // Do nothing if the file name is not provided
-        if (fileName == null)
-            return;
-        downloadURI('data:text/json;charset=utf-8,' + encodeURIComponent(stage.toJSON()), `${fileName}.json`);
+    async function downloadJSON() {
+        // If the browser supports the Files System Access API
+        if (window.showSaveFilePicker) {
+            const handle = await showSaveFilePicker({
+                types: [
+                    {
+                        description: 'JSON File',
+                        accept: {
+                            'text/json': ['.json'],
+                        },
+                    },
+                ],
+            });
+            const JSON = stage.toJSON();
+            const writable = await handle.createWritable();
+            await writable.write(JSON);
+            writable.close();
+        }
+        // If the browser does not support the Files System Access API
+        else {
+            const fileName = prompt('File Name:');
+            // Do nothing if user cancels prompt
+            if (fileName == null)
+                return;
+            await downloadURI('data:text/json;charset=utf-8,' + encodeURIComponent(stage.toJSON()), `${fileName}.json`);
+        }
     }
 
     /**
