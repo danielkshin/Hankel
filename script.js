@@ -397,16 +397,17 @@ loadImages(sources, function (images) {
         // Add event listeners
         for (let i of sources['pitches']) {
             document.getElementById(`pitch${i}`).addEventListener('click', function () {
-                pitchLayer.clear();
-                pitchLayer.add(
-                    new Konva.Image({
-                        x: 0,
-                        y: 0,
-                        image: images['pitches'][i],
-                        width: width,
-                        height: height,
-                    })
-                );
+                pitchLayer.destroyChildren();
+                let pitchImage = new Konva.Image({
+                    x: 0,
+                    y: 0,
+                    image: images['pitches'][i],
+                    width: width,
+                    height: height,
+                });
+                pitchImage.setAttr('imageType', 'pitches');
+                pitchImage.setAttr('index', i);
+                pitchLayer.add(pitchImage);
             });
         }
     }
