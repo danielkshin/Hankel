@@ -524,6 +524,7 @@ loadImages(sources, function (images) {
                     imageNode.image(images[imageNode.getAttr('imageType')][imageNode.getAttr('index')]);
                 });
                 document.getElementById('notesInput').value = stage.getAttr('notes');
+                document.getElementById('notesOption').checked = stage.getAttr('notes') != '';
                 pitchLayer = stage.children[0];
                 if (stage.children[1] != undefined)
                     graphicsLayer = stage.children[1];
