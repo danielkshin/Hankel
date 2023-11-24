@@ -13,6 +13,17 @@ body {
     flex-basis: 100%;
 }
 
+header {
+    display: flex;
+    align-items: center;
+    column-gap: 5px;
+}
+
+.logo {
+    width: 40px;
+    height: 40px;
+}
+
 ::-webkit-scrollbar {
     width: 5px;
 }
