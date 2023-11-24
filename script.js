@@ -532,6 +532,9 @@ loadImages(sources, function (images) {
 
                 // reenable stage interactions
                 addInteractions();
+
+                // reset upload files
+                uploadFile.value = '';
             };
         }
     });
