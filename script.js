@@ -1,6 +1,6 @@
 /**
  * Image sources
- * folderName (in assets folder): [fileNames or fileIndexes]
+ * {folderName (in assets folder): [fileNames or fileIndexes],...}
  */
 let sources = {
     players: [...Array(84).keys()],
@@ -10,7 +10,8 @@ let sources = {
 };
 
 /**
- * Image Loading Function
+ * Loads images
+ * 
  * Edited version of https://www.html5canvastutorials.com/tutorials/html5-canvas-image-loader/
  * Loads images in a manner that it stores loaded images in a similar structure as the sources
  * Don't touch unless you know what you're doing!
@@ -40,7 +41,6 @@ function loadImages(sources, callback) {
 
 /**
  * Main script
- * Runs once all images are loaded
  */
 loadImages(sources, function (images) {
     /**
@@ -60,7 +60,7 @@ loadImages(sources, function (images) {
     }
 
     /**
-     * Add notes to image
+     * Adds notes to final image
      */
     function addNotes() {
         if (document.getElementById('notesOption').checked) {
@@ -90,7 +90,8 @@ loadImages(sources, function (images) {
      * Downloads the stage as an image
      */
     async function downloadImage() {
-        // If the browser supports the Files System Access API
+        // (!) Experimental use of the Files System Access API
+        // If the browser supports the API
         if (window.showSaveFilePicker) {
             const handle = await showSaveFilePicker({
                 types: [
@@ -110,7 +111,7 @@ loadImages(sources, function (images) {
             await writable.write(image);
             writable.close();
         }
-        // If the browser does not support the Files System Access API
+        // If the browser does not support the API
         else {
             await addNotes();
 
@@ -118,10 +119,9 @@ loadImages(sources, function (images) {
             // Do nothing if user cancels prompt
             if (fileName == null)
                 return;
-            const dataURL = stage.toDataURL({ pixelRatio: 3 });
-            await downloadURI(dataURL, `${fileName}.png`);
+            await downloadURI(stage.toDataURL({ pixelRatio: 3 }), `${fileName}.png`);
         }
-
+        // Reset height of stage
         await stage.height(520);
     }
 
@@ -129,7 +129,8 @@ loadImages(sources, function (images) {
      * Downloads the stage as JSON
      */
     async function downloadJSON() {
-        // If the browser supports the Files System Access API
+        // (!) Experimental use of the Files System Access API
+        // If the browser supports the API
         if (window.showSaveFilePicker) {
             const handle = await showSaveFilePicker({
                 types: [
@@ -146,7 +147,7 @@ loadImages(sources, function (images) {
             await writable.write(JSON);
             writable.close();
         }
-        // If the browser does not support the Files System Access API
+        // If the browser does not support the API
         else {
             const fileName = prompt('File Name:');
             // Do nothing if user cancels prompt
@@ -157,7 +158,7 @@ loadImages(sources, function (images) {
     }
 
     /**
-     * Stage Interactions
+     * Adds interactions with the stage
      */
     function addInteractions() {
         // Reset variables
@@ -182,6 +183,7 @@ loadImages(sources, function (images) {
                 stage.container().style.cursor = currentCursor;
             }
         });
+
         // Markup
         stage.on('mousedown touchstart', function () {
             const pos = stage.getPointerPosition();
@@ -287,9 +289,7 @@ loadImages(sources, function (images) {
         });
 
 
-        /**
-         * Change cursor when interacting with objects
-         */
+        // Change cursor when interacting with objects
         graphicsLayer.on('mouseenter', function () {
             if (currentMode == 'players' || currentMode == 'equipments' || currentMode == 'text' || currentMode == 'move') {
                 stage.container().style.cursor = 'move';
@@ -331,7 +331,7 @@ loadImages(sources, function (images) {
             downloadJSON();
             return;
         } else if (tool == 'uploadJSON') {
-            // Reset variables (do not delete)
+            // Reset variables
             currentMode = 'none';
             currentCursor = 'default';
             stage.container().style.cursor = currentCursor;
@@ -432,10 +432,11 @@ loadImages(sources, function (images) {
         }
     }
 
-    let graphicsLayer = new Konva.Layer();
     /**
-     * Adds image to `graphicsLayer` (rewrite)
-     * @param {Image} image The image to add (from `images`)
+     * Adds image to `graphicsLayer`
+     * 
+     * @param {String} type The image type (players, pitches, or equipments)
+     * @param {Number} index The index of the image in the assets folder
      * @param {Number} x The x position of the image being added
      * @param {Number} y The y position of the image being added
      */
@@ -456,6 +457,7 @@ loadImages(sources, function (images) {
 
     /**
      * Adds text to `graphicsLayer`
+
      * @param {String} text The text to add
      * @param {*} x The x position of the text being added
      * @param {*} y The y position of the text being added
@@ -478,7 +480,7 @@ loadImages(sources, function (images) {
     }
 
     /**
-     * Main code starts here
+     * Main code
      */
 
     // Set up variables
@@ -487,6 +489,8 @@ loadImages(sources, function (images) {
     let currentCursor = 'default';
     let markup = false;
     let markupLayer = new Konva.Layer();
+    let graphicsLayer = new Konva.Layer();
+    let pitchLayer = new Konva.Layer();
     let deleting = false;
     const width = 675;
     const height = 520;
@@ -502,8 +506,7 @@ loadImages(sources, function (images) {
         height: height,
     });
 
-    // Create pitch layer
-    let pitchLayer = new Konva.Layer();
+    // Add pitch image to pitch layer
     let pitchImage = new Konva.Image({
         x: 0,
         y: 0,
@@ -531,30 +534,36 @@ loadImages(sources, function (images) {
     });
 
     /**
-     * On JSON upload (rewrite)
+     * Load stage from uploaded JSON file
      */
     document.getElementById('uploadFile').addEventListener('change', function () {
         if (uploadFile.files.length > 0) {
+            // Read the uploaded file as JSON
             let reader = new FileReader();
             reader.readAsText(uploadFile.files[0]);
             reader.onload = function () {
                 let json = JSON.parse(reader.result);
+                // Load stage from the JSON
                 stage = Konva.Node.create(json, 'planner');
+                // Set image attributes 
                 stage.find('Image').forEach((imageNode) => {
                     imageNode.image(images[imageNode.getAttr('imageType')][imageNode.getAttr('index')]);
                 });
+                // Set notes attributes from the JSON
                 document.getElementById('notesInput').value = stage.getAttr('notes');
                 document.getElementById('notesOption').checked = stage.getAttr('notes') != '';
+
+                // Set layers from the JSON
                 pitchLayer = stage.children[0];
                 if (stage.children[1] != undefined)
                     graphicsLayer = stage.children[1];
                 if (stage.children[2] != undefined)
                     markupLayer = stage.children[2];
 
-                // reenable stage interactions
+                // Reenable stage interations
                 addInteractions();
 
-                // reset upload files
+                // Reset uploaded files
                 uploadFile.value = '';
             };
         }
