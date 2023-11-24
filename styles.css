@@ -29,6 +29,13 @@ header img {
     height: 40px;
 }
 
+.menu {
+    display: flex;
+    font-size: 13px;
+    padding-bottom: 10px;
+    column-gap: 10px;
+}
+
 ::-webkit-scrollbar {
     width: 5px;
 }
