@@ -136,6 +136,160 @@ loadImages(sources, function (images) {
         downloadURI('data:text/json;charset=utf-8,' + encodeURIComponent(stage.toJSON()), `${fileName}.json`);
     }
 
+    /**
+     * Stage Interactions
+     */
+    function addInteractions() {
+        // Reset variables
+        currentMode = 'none';
+        currentCursor = 'default';
+        stage.container().style.cursor = currentCursor;
+
+        // Graphics
+        stage.on('click tap', function (e) {
+            let pos = stage.getRelativePointerPosition();
+            if (currentMode == 'players') {
+                addImage('players', selectedImage, pos.x, pos.y);
+            } else if (currentMode == 'text') {
+                addText(prompt('Add text:'), pos.x, pos.y);
+            } else if (currentMode == 'equipments') {
+                addImage('equipments', selectedImage, pos.x, pos.y);
+            } else if (currentMode == 'delete') {
+                // Prevent deletion of the pitch
+                if (e.target.attrs.width == width)
+                    return;
+                e.target.destroy();
+                stage.container().style.cursor = currentCursor;
+            }
+        });
+        // Markup
+        stage.on('mousedown touchstart', function () {
+            const pos = stage.getPointerPosition();
+            originalPosition = {
+                x: pos.x,
+                y: pos.y,
+            };
+            markup = true;
+
+            switch (currentMode) {
+                case 'draw':
+                case 'line':
+                case 'dashedLine':
+                    line = new Konva.Line({
+                        stroke: document.getElementById('colorPicker').value,
+                        strokeWidth: 2,
+                        globalCompositeOperation: 'source-over',
+                        lineCap: 'round',
+                        lineJoin: 'round',
+                        points: [pos.x, pos.y, pos.x, pos.y],
+                        dash: currentMode == 'dashedLine' ? [15, 10] : [],
+                    });
+                    break;
+                case 'arrow':
+                case 'dashedArrow':
+                    line = new Konva.Arrow({
+                        stroke: document.getElementById('colorPicker').value,
+                        strokeWidth: 2,
+                        fill: document.getElementById('colorPicker').value,
+                        globalCompositeOperation: 'source-over',
+                        lineCap: 'round',
+                        lineJoin: 'round',
+                        dash: currentMode == 'dashedArrow' ? [15, 10] : [],
+                    });
+                    break;
+                case 'curvedArrow':
+                case 'dashedCurvedArrow':
+                    line = new Konva.Arrow({
+                        stroke: document.getElementById('colorPicker').value,
+                        strokeWidth: 2,
+                        fill: document.getElementById('colorPicker').value,
+                        globalCompositeOperation: 'source-over',
+                        lineCap: 'round',
+                        lineJoin: 'round',
+                        bezier: true,
+                        dash: currentMode == 'dashedCurvedArrow' ? [15, 10] : [],
+                    });
+                    break;
+                case 'delete':
+                    deleting = true;
+                    return;
+                default:
+                    return;
+            }
+            markupLayer.add(line);
+        });
+        stage.on('mouseup touchend', function () {
+            markup = false;
+            deleting = false;
+        });
+        stage.on('mousemove touchmove', function (e) {
+            const pos = stage.getPointerPosition();
+            e.evt.preventDefault();
+            if (!markup) {
+                return;
+            }
+
+            switch (currentMode) {
+                case 'draw':
+                    let newPoints = line.points().concat([pos.x, pos.y]);
+                    line.points(newPoints);
+                    break;
+                case 'line':
+                case 'dashedLine':
+                case 'arrow':
+                case 'dashedArrow':
+                    line.points([originalPosition.x, originalPosition.y, pos.x, pos.y]);
+                    break;
+                case 'curvedArrow':
+                case 'dashedCurvedArrow':
+                    if (Math.abs(originalPosition.x - pos.x) > Math.abs(originalPosition.y - pos.y)) {
+                        line.points([originalPosition.x, originalPosition.y, originalPosition.x, originalPosition.y, pos.x, originalPosition.y, pos.x, pos.y]);
+                        if (e.evt.shiftKey) {
+                            line.points([originalPosition.x, originalPosition.y, originalPosition.x, originalPosition.y, originalPosition.x, pos.y, pos.x, pos.y]);
+                        }
+                    } else {
+                        line.points([originalPosition.x, originalPosition.y, originalPosition.x, originalPosition.y, originalPosition.x, pos.y, pos.x, pos.y]);
+                        if (e.evt.shiftKey) {
+                            line.points([originalPosition.x, originalPosition.y, originalPosition.x, originalPosition.y, pos.x, originalPosition.y, pos.x, pos.y]);
+                        }
+                    }
+                case 'delete':
+                    if (deleting) {
+                        if (e.target.attrs.width == width)
+                            return;
+                        e.target.destroy();
+                        stage.container().style.cursor = currentCursor;
+                    }
+                    break;
+                default:
+                    return;
+            }
+        });
+
+
+        /**
+         * Change cursor when interacting with objects
+         */
+        graphicsLayer.on('mouseenter', function () {
+            if (currentMode == 'players' || currentMode == 'equipments' || currentMode == 'text' || currentMode == 'move') {
+                stage.container().style.cursor = 'move';
+            }
+            else if (currentMode == 'delete') {
+                stage.container().style.cursor = 'crosshair';
+            }
+        });
+        graphicsLayer.on('mouseleave', function () {
+            stage.container().style.cursor = currentCursor;
+        });
+        markupLayer.on('mouseenter', function () {
+            if (currentMode == 'delete') {
+                stage.container().style.cursor = 'crosshair';
+            }
+        });
+        markupLayer.on('mouseleave', function () {
+            stage.container().style.cursor = currentCursor;
+        });
+    }
 
     /**
      * Changes `currentMode` and the cursor to the affiliated icon
@@ -157,6 +311,11 @@ loadImages(sources, function (images) {
             downloadJSON();
             return;
         } else if (tool == 'uploadJSON') {
+            // Reset variables (do not delete)
+            currentMode = 'none';
+            currentCursor = 'default';
+            stage.container().style.cursor = currentCursor;
+
             const uploadFile = document.getElementById('uploadFile');
             uploadFile.click();
             return;
@@ -340,167 +499,8 @@ loadImages(sources, function (images) {
     stage.add(graphicsLayer);
     stage.add(markupLayer);
 
-    json = prompt('json');
-    if (json != null) {
-        stage = Konva.Node.create(json, 'planner');
-        stage.find('Image').forEach((imageNode) => {
-            imageNode.image(images[imageNode.getAttr('imageType')][imageNode.getAttr('index')]);
-        });
-        document.getElementById('notesInput').value = stage.getAttr('notes');
-        pitch = stage.children[0];
-        if (stage.children[1] != undefined)
-            graphicsLayer = stage.children[1];
-        if (stage.children[2] != undefined)
-            markupLayer = stage.children[2];
-    }
-
-    /**
-     * Interacting with the stage
-     */
-    // Graphics
-    stage.on('click tap', function (e) {
-        let pos = stage.getRelativePointerPosition();
-        if (currentMode == 'players') {
-            addImage('players', selectedImage, pos.x, pos.y);
-        } else if (currentMode == 'text') {
-            addText(prompt('Add text:'), pos.x, pos.y);
-        } else if (currentMode == 'equipments') {
-            addImage('equipments', selectedImage, pos.x, pos.y);
-        } else if (currentMode == 'delete') {
-            // Prevent deletion of the pitch
-            if (e.target.attrs.width == width)
-                return;
-            e.target.destroy();
-            stage.container().style.cursor = currentCursor;
-        }
-    });
-    // Markup
-    stage.on('mousedown touchstart', function () {
-        const pos = stage.getPointerPosition();
-        originalPosition = {
-            x: pos.x,
-            y: pos.y,
-        };
-        markup = true;
-
-        switch (currentMode) {
-            case 'draw':
-            case 'line':
-            case 'dashedLine':
-                line = new Konva.Line({
-                    stroke: document.getElementById('colorPicker').value,
-                    strokeWidth: 2,
-                    globalCompositeOperation: 'source-over',
-                    lineCap: 'round',
-                    lineJoin: 'round',
-                    points: [pos.x, pos.y, pos.x, pos.y],
-                    dash: currentMode == 'dashedLine' ? [15, 10] : [],
-                });
-                break;
-            case 'arrow':
-            case 'dashedArrow':
-                line = new Konva.Arrow({
-                    stroke: document.getElementById('colorPicker').value,
-                    strokeWidth: 2,
-                    fill: document.getElementById('colorPicker').value,
-                    globalCompositeOperation: 'source-over',
-                    lineCap: 'round',
-                    lineJoin: 'round',
-                    dash: currentMode == 'dashedArrow' ? [15, 10] : [],
-                });
-                break;
-            case 'curvedArrow':
-            case 'dashedCurvedArrow':
-                line = new Konva.Arrow({
-                    stroke: document.getElementById('colorPicker').value,
-                    strokeWidth: 2,
-                    fill: document.getElementById('colorPicker').value,
-                    globalCompositeOperation: 'source-over',
-                    lineCap: 'round',
-                    lineJoin: 'round',
-                    bezier: true,
-                    dash: currentMode == 'dashedCurvedArrow' ? [15, 10] : [],
-                });
-                break;
-            case 'delete':
-                deleting = true;
-                return;
-            default:
-                return;
-        }
-        markupLayer.add(line);
-    });
-    stage.on('mouseup touchend', function () {
-        markup = false;
-        deleting = false;
-    });
-    stage.on('mousemove touchmove', function (e) {
-        const pos = stage.getPointerPosition();
-        e.evt.preventDefault();
-        if (!markup) {
-            return;
-        }
-
-        switch (currentMode) {
-            case 'draw':
-                let newPoints = line.points().concat([pos.x, pos.y]);
-                line.points(newPoints);
-                break;
-            case 'line':
-            case 'dashedLine':
-            case 'arrow':
-            case 'dashedArrow':
-                line.points([originalPosition.x, originalPosition.y, pos.x, pos.y]);
-                break;
-            case 'curvedArrow':
-            case 'dashedCurvedArrow':
-                if (Math.abs(originalPosition.x - pos.x) > Math.abs(originalPosition.y - pos.y)) {
-                    line.points([originalPosition.x, originalPosition.y, originalPosition.x, originalPosition.y, pos.x, originalPosition.y, pos.x, pos.y]);
-                    if (e.evt.shiftKey) {
-                        line.points([originalPosition.x, originalPosition.y, originalPosition.x, originalPosition.y, originalPosition.x, pos.y, pos.x, pos.y]);
-                    }
-                } else {
-                    line.points([originalPosition.x, originalPosition.y, originalPosition.x, originalPosition.y, originalPosition.x, pos.y, pos.x, pos.y]);
-                    if (e.evt.shiftKey) {
-                        line.points([originalPosition.x, originalPosition.y, originalPosition.x, originalPosition.y, pos.x, originalPosition.y, pos.x, pos.y]);
-                    }
-                }
-            case 'delete':
-                if (deleting) {
-                    if (e.target.attrs.width == width)
-                        return;
-                    e.target.destroy();
-                    stage.container().style.cursor = currentCursor;
-                }
-                break;
-            default:
-                return;
-        }
-    });
-
-
-    /**
-     * Change cursor when interacting with objects
-     */
-    graphicsLayer.on('mouseenter', function () {
-        if (currentMode == 'players' || currentMode == 'equipments' || currentMode == 'text' || currentMode == 'move') {
-            stage.container().style.cursor = 'move';
-        }
-        else if (currentMode == 'delete') {
-            stage.container().style.cursor = 'crosshair';
-        }
-    });
-    graphicsLayer.on('mouseleave', function () {
-        stage.container().style.cursor = currentCursor;
-    });
-    markupLayer.on('mouseenter', function () {
-        if (currentMode == 'delete') {
-            stage.container().style.cursor = 'crosshair';
-        }
-    });
-    markupLayer.on('mouseleave', function () {
-        stage.container().style.cursor = currentCursor;
-    });
+    // Enable stage interactions
+    addInteractions();
 
     /**
      * Enable notes in image once typed in
@@ -512,11 +512,12 @@ loadImages(sources, function (images) {
     /**
      * On JSON upload (rewrite)
      */
-    document.getElementById('uploadFile').addEventListener('change', function (e) {
+    document.getElementById('uploadFile').addEventListener('change', function () {
         if (uploadFile.files.length > 0) {
             let reader = new FileReader();
             reader.readAsText(uploadFile.files[0]);
             reader.onload = function () {
+                console.log(markupLayer);
                 let json = JSON.parse(reader.result);
                 console.log(json);
                 stage = Konva.Node.create(json, 'planner');
@@ -529,7 +530,13 @@ loadImages(sources, function (images) {
                     graphicsLayer = stage.children[1];
                 if (stage.children[2] != undefined)
                     markupLayer = stage.children[2];
+
+                console.log(currentMode);
+                // reenable stage interactions
+                addInteractions();
+                console.log(currentMode);
             };
         }
     });
+    console.log('e')
 });
