@@ -523,7 +523,7 @@ loadImages(sources, function (images) {
                     imageNode.image(images[imageNode.getAttr('imageType')][imageNode.getAttr('index')]);
                 });
                 document.getElementById('notesInput').value = stage.getAttr('notes');
-                pitch = stage.children[0];
+                pitchLayer = stage.children[0];
                 if (stage.children[1] != undefined)
                     graphicsLayer = stage.children[1];
                 if (stage.children[2] != undefined)
