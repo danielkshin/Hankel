@@ -122,7 +122,7 @@ loadImages(sources, function (images) {
             await downloadURI(dataURL, `${fileName}.png`);
         }
 
-        await stage.height(500);
+        await stage.height(520);
     }
 
     /**
