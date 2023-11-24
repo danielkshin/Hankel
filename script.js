@@ -5,7 +5,7 @@
 let sources = {
     players: [...Array(84).keys()],
     pitches: [...Array(16).keys()],
-    tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow', 'curvedArrow', 'dashedCurvedArrow', 'move', 'delete', 'download'],
+    tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow', 'curvedArrow', 'dashedCurvedArrow', 'move', 'delete', 'download', 'downloadJSON', 'uploadJSON'],
     equipments: [...Array(41).keys()],
 };
 
@@ -60,17 +60,12 @@ loadImages(sources, function (images) {
     }
 
     /**
-     * Downloads the stage as an image and prompts the user for the file name
+     * Add notes to image
      */
-    function downloadImage() {
-        let fileName = prompt('File Name:');
-        // Do nothing if the file name is not provided
-        if (fileName == null)
-            return;
-        // Add notes to image if the option is checked
+    function addNotes() {
         if (document.getElementById('notesOption').checked) {
             stage.height(700);
-            pitch.add(
+            pitchLayer.add(
                 new Konva.Rect({
                     x: 0,
                     y: height,
@@ -89,9 +84,231 @@ loadImages(sources, function (images) {
                 })
             );
         }
-        let dataURL = stage.toDataURL({ pixelRatio: 3 });
-        downloadURI(dataURL, `${fileName}.png`);
-        stage.height(500);
+    }
+
+    /**
+     * Downloads the stage as an image
+     */
+    async function downloadImage() {
+        // If the browser supports the Files System Access API
+        if (window.showSaveFilePicker) {
+            const handle = await showSaveFilePicker({
+                types: [
+                    {
+                        description: 'PNG File',
+                        accept: {
+                            'image/png': ['.png'],
+                        },
+                    },
+                ],
+            });
+
+            await addNotes();
+
+            let image = await new Promise((res) => stage.toCanvas().toBlob(res));
+            const writable = await handle.createWritable();
+            await writable.write(image);
+            writable.close();
+        }
+        // If the browser does not support the Files System Access API
+        else {
+            await addNotes();
+
+            const fileName = prompt('File Name:');
+            // Do nothing if user cancels prompt
+            if (fileName == null)
+                return;
+            const dataURL = stage.toDataURL({ pixelRatio: 3 });
+            await downloadURI(dataURL, `${fileName}.png`);
+        }
+
+        await stage.height(520);
+    }
+
+    /**
+     * Downloads the stage as JSON
+     */
+    async function downloadJSON() {
+        // If the browser supports the Files System Access API
+        if (window.showSaveFilePicker) {
+            const handle = await showSaveFilePicker({
+                types: [
+                    {
+                        description: 'JSON File',
+                        accept: {
+                            'text/json': ['.json'],
+                        },
+                    },
+                ],
+            });
+            const JSON = stage.toJSON();
+            const writable = await handle.createWritable();
+            await writable.write(JSON);
+            writable.close();
+        }
+        // If the browser does not support the Files System Access API
+        else {
+            const fileName = prompt('File Name:');
+            // Do nothing if user cancels prompt
+            if (fileName == null)
+                return;
+            await downloadURI('data:text/json;charset=utf-8,' + encodeURIComponent(stage.toJSON()), `${fileName}.json`);
+        }
+    }
+
+    /**
+     * Stage Interactions
+     */
+    function addInteractions() {
+        // Reset variables
+        currentMode = 'none';
+        currentCursor = 'default';
+        stage.container().style.cursor = currentCursor;
+
+        // Graphics
+        stage.on('click tap', function (e) {
+            let pos = stage.getRelativePointerPosition();
+            if (currentMode == 'players') {
+                addImage('players', selectedImage, pos.x, pos.y);
+            } else if (currentMode == 'text') {
+                addText(prompt('Add text:'), pos.x, pos.y);
+            } else if (currentMode == 'equipments') {
+                addImage('equipments', selectedImage, pos.x, pos.y);
+            } else if (currentMode == 'delete') {
+                // Prevent deletion of the pitch
+                if (e.target.attrs.width == width)
+                    return;
+                e.target.destroy();
+                stage.container().style.cursor = currentCursor;
+            }
+        });
+        // Markup
+        stage.on('mousedown touchstart', function () {
+            const pos = stage.getPointerPosition();
+            originalPosition = {
+                x: pos.x,
+                y: pos.y,
+            };
+            markup = true;
+
+            switch (currentMode) {
+                case 'draw':
+                case 'line':
+                case 'dashedLine':
+                    line = new Konva.Line({
+                        stroke: document.getElementById('colorPicker').value,
+                        strokeWidth: 2,
+                        globalCompositeOperation: 'source-over',
+                        lineCap: 'round',
+                        lineJoin: 'round',
+                        points: [pos.x, pos.y, pos.x, pos.y],
+                        dash: currentMode == 'dashedLine' ? [15, 10] : [],
+                    });
+                    break;
+                case 'arrow':
+                case 'dashedArrow':
+                    line = new Konva.Arrow({
+                        stroke: document.getElementById('colorPicker').value,
+                        strokeWidth: 2,
+                        fill: document.getElementById('colorPicker').value,
+                        globalCompositeOperation: 'source-over',
+                        lineCap: 'round',
+                        lineJoin: 'round',
+                        dash: currentMode == 'dashedArrow' ? [15, 10] : [],
+                    });
+                    break;
+                case 'curvedArrow':
+                case 'dashedCurvedArrow':
+                    line = new Konva.Arrow({
+                        stroke: document.getElementById('colorPicker').value,
+                        strokeWidth: 2,
+                        fill: document.getElementById('colorPicker').value,
+                        globalCompositeOperation: 'source-over',
+                        lineCap: 'round',
+                        lineJoin: 'round',
+                        bezier: true,
+                        dash: currentMode == 'dashedCurvedArrow' ? [15, 10] : [],
+                    });
+                    break;
+                case 'delete':
+                    deleting = true;
+                    return;
+                default:
+                    return;
+            }
+            markupLayer.add(line);
+        });
+        stage.on('mouseup touchend', function () {
+            markup = false;
+            deleting = false;
+        });
+        stage.on('mousemove touchmove', function (e) {
+            const pos = stage.getPointerPosition();
+            e.evt.preventDefault();
+            if (!markup) {
+                return;
+            }
+
+            switch (currentMode) {
+                case 'draw':
+                    let newPoints = line.points().concat([pos.x, pos.y]);
+                    line.points(newPoints);
+                    break;
+                case 'line':
+                case 'dashedLine':
+                case 'arrow':
+                case 'dashedArrow':
+                    line.points([originalPosition.x, originalPosition.y, pos.x, pos.y]);
+                    break;
+                case 'curvedArrow':
+                case 'dashedCurvedArrow':
+                    if (Math.abs(originalPosition.x - pos.x) > Math.abs(originalPosition.y - pos.y)) {
+                        line.points([originalPosition.x, originalPosition.y, originalPosition.x, originalPosition.y, pos.x, originalPosition.y, pos.x, pos.y]);
+                        if (e.evt.shiftKey) {
+                            line.points([originalPosition.x, originalPosition.y, originalPosition.x, originalPosition.y, originalPosition.x, pos.y, pos.x, pos.y]);
+                        }
+                    } else {
+                        line.points([originalPosition.x, originalPosition.y, originalPosition.x, originalPosition.y, originalPosition.x, pos.y, pos.x, pos.y]);
+                        if (e.evt.shiftKey) {
+                            line.points([originalPosition.x, originalPosition.y, originalPosition.x, originalPosition.y, pos.x, originalPosition.y, pos.x, pos.y]);
+                        }
+                    }
+                case 'delete':
+                    if (deleting) {
+                        if (e.target.attrs.width == width)
+                            return;
+                        e.target.destroy();
+                        stage.container().style.cursor = currentCursor;
+                    }
+                    break;
+                default:
+                    return;
+            }
+        });
+
+
+        /**
+         * Change cursor when interacting with objects
+         */
+        graphicsLayer.on('mouseenter', function () {
+            if (currentMode == 'players' || currentMode == 'equipments' || currentMode == 'text' || currentMode == 'move') {
+                stage.container().style.cursor = 'move';
+            }
+            else if (currentMode == 'delete') {
+                stage.container().style.cursor = 'crosshair';
+            }
+        });
+        graphicsLayer.on('mouseleave', function () {
+            stage.container().style.cursor = currentCursor;
+        });
+        markupLayer.on('mouseenter', function () {
+            if (currentMode == 'delete') {
+                stage.container().style.cursor = 'crosshair';
+            }
+        });
+        markupLayer.on('mouseleave', function () {
+            stage.container().style.cursor = currentCursor;
+        });
     }
 
     /**
@@ -105,9 +322,22 @@ loadImages(sources, function (images) {
         for (i of graphicsLayer.children) {
             i.draggable(mode == 'players' || mode == 'equipments' || tool == 'text' || tool == 'move');
         }
-        // Donwload image if the mode is 'download'
+        // Download image, download JSON, or upload JSON depending on mode
         if (tool == 'download') {
             downloadImage();
+            return;
+        } else if (tool == 'downloadJSON') {
+            stage.setAttr('notes', document.getElementById('notesInput').value);
+            downloadJSON();
+            return;
+        } else if (tool == 'uploadJSON') {
+            // Reset variables (do not delete)
+            currentMode = 'none';
+            currentCursor = 'default';
+            stage.container().style.cursor = currentCursor;
+
+            const uploadFile = document.getElementById('uploadFile');
+            uploadFile.click();
             return;
         }
         // Change the cursor and the current mode
@@ -159,7 +389,10 @@ loadImages(sources, function (images) {
 
         // Create equipment elements
         for (let i of sources['equipments']) {
-            document.getElementById('equipments').innerHTML += `<img class="equipment${images['equipments'][i].width < 15 / 0.3 || images['equipments'][i].height < 15 / 0.3 ? 'Small' : 'Large'}" id="equipment${i}" src="assets_low/equipments/${i}.png" draggable="false"></img>`;
+            document.getElementById('equipments').innerHTML += `<img class="equipment${images['equipments'][i].width < 15 / 0.3 || images['equipments'][i].height < 14 / 0.3 ? 'Small' : 'Large'}" id="equipment${i}" src="assets_low/equipments/${i}.png" draggable="false"></img>`;
+            if (i == 6 || i == 15 || i == 22 || i == 28 || i == 32 || i == 36) {
+                document.getElementById('equipments').innerHTML += '<br>';
+            }
         }
         // Add event listeners
         for (let i of sources['equipments']) {
@@ -184,39 +417,41 @@ loadImages(sources, function (images) {
         // Add event listeners
         for (let i of sources['pitches']) {
             document.getElementById(`pitch${i}`).addEventListener('click', function () {
-                pitch.clear();
-                pitch.add(
-                    new Konva.Image({
-                        x: 0,
-                        y: 0,
-                        image: images['pitches'][i],
-                        width: width,
-                        height: height,
-                    })
-                );
+                pitchLayer.destroyChildren();
+                let pitchImage = new Konva.Image({
+                    x: 0,
+                    y: 0,
+                    image: images['pitches'][i],
+                    width: width,
+                    height: height,
+                });
+                pitchImage.setAttr('imageType', 'pitches');
+                pitchImage.setAttr('index', i);
+                pitchLayer.add(pitchImage);
             });
         }
     }
 
     let graphicsLayer = new Konva.Layer();
     /**
-     * Adds image to `graphicsLayer`
+     * Adds image to `graphicsLayer` (rewrite)
      * @param {Image} image The image to add (from `images`)
      * @param {Number} x The x position of the image being added
      * @param {Number} y The y position of the image being added
      */
-    function addImage(image, x, y) {
-        graphicsLayer.add(
-            new Konva.Image({
-                width: image.width * 0.3,
-                height: image.height * 0.3,
-                x: x - image.width * 0.3 / 2,
-                y: y - image.height * 0.3 / 2,
-                image: image,
-                draggable: true,
-            })
-        );
-        stage.add(graphicsLayer);
+    function addImage(type, index, x, y) {
+        image = images[type][index];
+        imageToAdd = new Konva.Image({
+            width: image.width * 0.3,
+            height: image.height * 0.3,
+            x: x - image.width * 0.3 / 2,
+            y: y - image.height * 0.3 / 2,
+            image: image,
+            draggable: true,
+        });
+        imageToAdd.setAttr('imageType', type);
+        imageToAdd.setAttr('index', index);
+        graphicsLayer.add(imageToAdd);
     }
 
     /**
@@ -240,7 +475,6 @@ loadImages(sources, function (images) {
                 draggable: true,
             })
         );
-        stage.add(graphicsLayer);
     }
 
     /**
@@ -254,8 +488,8 @@ loadImages(sources, function (images) {
     let markup = false;
     let markupLayer = new Konva.Layer();
     let deleting = false;
-    const width = 650;
-    const height = 500;
+    const width = 675;
+    const height = 520;
 
     // Load the menus
     loadMenu();
@@ -268,172 +502,61 @@ loadImages(sources, function (images) {
         height: height,
     });
 
-    // Add the pitch to the stage
-    let pitch = new Konva.Layer();
-    pitch.add(
-        new Konva.Image({
-            x: 0,
-            y: 0,
-            image: images['pitches'][0],
-            width: width,
-            height: height,
-        })
-    );
-    stage.add(pitch);
+    // Create pitch layer
+    let pitchLayer = new Konva.Layer();
+    let pitchImage = new Konva.Image({
+        x: 0,
+        y: 0,
+        image: images['pitches'][0],
+        width: width,
+        height: height,
+    });
+    pitchImage.setAttr('imageType', 'pitches');
+    pitchImage.setAttr('index', 0);
+    pitchLayer.add(pitchImage);
 
-    /**
-     * Interacting with the stage
-     */
-    // Graphics
-    stage.on('click tap', function (e) {
-        let pos = stage.getRelativePointerPosition();
-        if (currentMode == 'players') {
-            addImage(images['players'][selectedImage], pos.x, pos.y);
-        } else if (currentMode == 'text') {
-            addText(prompt('Add text:'), pos.x, pos.y);
-        } else if (currentMode == 'equipments') {
-            addImage(images['equipments'][selectedImage], pos.x, pos.y);
-        } else if (currentMode == 'delete') {
-            // Prevent deletion of the pitch
-            if (e.target.attrs.width == width)
-                return;
-            e.target.destroy();
-            stage.container().style.cursor = currentCursor;
-        }
-    });
-    // Markup
-    stage.on('mousedown touchstart', function () {
-        const pos = stage.getPointerPosition();
-        originalPosition = {
-            x: pos.x,
-            y: pos.y,
-        };
-        markup = true;
+    // Add pitch, graphics, and markup layer to the stage
+    stage.add(pitchLayer);
+    stage.add(graphicsLayer);
+    stage.add(markupLayer);
 
-        switch (currentMode) {
-            case 'draw':
-            case 'line':
-            case 'dashedLine':
-                line = new Konva.Line({
-                    stroke: document.getElementById('colorPicker').value,
-                    strokeWidth: 2,
-                    globalCompositeOperation: 'source-over',
-                    lineCap: 'round',
-                    lineJoin: 'round',
-                    points: [pos.x, pos.y, pos.x, pos.y],
-                    dash: currentMode == 'dashedLine' ? [15, 10] : [],
-                });
-                break;
-            case 'arrow':
-            case 'dashedArrow':
-                line = new Konva.Arrow({
-                    stroke: document.getElementById('colorPicker').value,
-                    strokeWidth: 2,
-                    fill: document.getElementById('colorPicker').value,
-                    globalCompositeOperation: 'source-over',
-                    lineCap: 'round',
-                    lineJoin: 'round',
-                    dash: currentMode == 'dashedArrow' ? [15, 10] : [],
-                });
-                break;
-            case 'curvedArrow':
-            case 'dashedCurvedArrow':
-                line = new Konva.Arrow({
-                    stroke: document.getElementById('colorPicker').value,
-                    strokeWidth: 2,
-                    fill: document.getElementById('colorPicker').value,
-                    globalCompositeOperation: 'source-over',
-                    lineCap: 'round',
-                    lineJoin: 'round',
-                    bezier: true,
-                    dash: currentMode == 'dashedCurvedArrow' ? [15, 10] : [],
-                });
-                break;
-            case 'delete':
-                deleting = true;
-                return;
-            default:
-                return;
-        }
-        markupLayer.add(line);
-        stage.add(markupLayer);
-    });
-    stage.on('mouseup touchend', function () {
-        markup = false;
-        deleting = false;
-    });
-    stage.on('mousemove touchmove', function (e) {
-        const pos = stage.getPointerPosition();
-        e.evt.preventDefault();
-        if (!markup) {
-            return;
-        }
-
-        switch (currentMode) {
-            case 'draw':
-                let newPoints = line.points().concat([pos.x, pos.y]);
-                line.points(newPoints);
-                break;
-            case 'line':
-            case 'dashedLine':
-            case 'arrow':
-            case 'dashedArrow':
-                line.points([originalPosition.x, originalPosition.y, pos.x, pos.y]);
-                break;
-            case 'curvedArrow':
-            case 'dashedCurvedArrow':
-                if (Math.abs(originalPosition.x - pos.x) > Math.abs(originalPosition.y - pos.y)) {
-                    line.points([originalPosition.x, originalPosition.y, originalPosition.x, originalPosition.y, pos.x, originalPosition.y, pos.x, pos.y]);
-                    if (e.evt.shiftKey) {
-                        line.points([originalPosition.x, originalPosition.y, originalPosition.x, originalPosition.y, originalPosition.x, pos.y, pos.x, pos.y]);
-                    }
-                } else {
-                    line.points([originalPosition.x, originalPosition.y, originalPosition.x, originalPosition.y, originalPosition.x, pos.y, pos.x, pos.y]);
-                    if (e.evt.shiftKey) {
-                        line.points([originalPosition.x, originalPosition.y, originalPosition.x, originalPosition.y, pos.x, originalPosition.y, pos.x, pos.y]);
-                    }
-                }
-            case 'delete':
-                if (deleting) {
-                    if (e.target.attrs.width == width)
-                        return;
-                    e.target.destroy();
-                    stage.container().style.cursor = currentCursor;
-                }
-                break;
-            default:
-                return;
-        }
-    });
-
-
-    /**
-     * Change cursor when interacting with objects
-     */
-    graphicsLayer.on('mouseenter', function () {
-        if (currentMode == 'players' || currentMode == 'equipments' || currentMode == 'text' || currentMode == 'move') {
-            stage.container().style.cursor = 'move';
-        }
-        else if (currentMode == 'delete') {
-            stage.container().style.cursor = 'crosshair';
-        }
-    });
-    graphicsLayer.on('mouseleave', function () {
-        stage.container().style.cursor = currentCursor;
-    });
-    markupLayer.on('mouseenter', function () {
-        if (currentMode == 'delete') {
-            stage.container().style.cursor = 'crosshair';
-        }
-    });
-    markupLayer.on('mouseleave', function () {
-        stage.container().style.cursor = currentCursor;
-    });
+    // Enable stage interactions
+    addInteractions();
 
     /**
      * Enable notes in image once typed in
      */
     document.getElementById('notesInput').addEventListener('input', function () {
         document.getElementById('notesOption').checked = true;
+    });
+
+    /**
+     * On JSON upload (rewrite)
+     */
+    document.getElementById('uploadFile').addEventListener('change', function () {
+        if (uploadFile.files.length > 0) {
+            let reader = new FileReader();
+            reader.readAsText(uploadFile.files[0]);
+            reader.onload = function () {
+                let json = JSON.parse(reader.result);
+                stage = Konva.Node.create(json, 'planner');
+                stage.find('Image').forEach((imageNode) => {
+                    imageNode.image(images[imageNode.getAttr('imageType')][imageNode.getAttr('index')]);
+                });
+                document.getElementById('notesInput').value = stage.getAttr('notes');
+                document.getElementById('notesOption').checked = stage.getAttr('notes') != '';
+                pitchLayer = stage.children[0];
+                if (stage.children[1] != undefined)
+                    graphicsLayer = stage.children[1];
+                if (stage.children[2] != undefined)
+                    markupLayer = stage.children[2];
+
+                // reenable stage interactions
+                addInteractions();
+
+                // reset upload files
+                uploadFile.value = '';
+            };
+        }
     });
 });
