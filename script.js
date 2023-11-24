@@ -517,9 +517,7 @@ loadImages(sources, function (images) {
             let reader = new FileReader();
             reader.readAsText(uploadFile.files[0]);
             reader.onload = function () {
-                console.log(markupLayer);
                 let json = JSON.parse(reader.result);
-                console.log(json);
                 stage = Konva.Node.create(json, 'planner');
                 stage.find('Image').forEach((imageNode) => {
                     imageNode.image(images[imageNode.getAttr('imageType')][imageNode.getAttr('index')]);
@@ -531,12 +529,9 @@ loadImages(sources, function (images) {
                 if (stage.children[2] != undefined)
                     markupLayer = stage.children[2];
 
-                console.log(currentMode);
                 // reenable stage interactions
                 addInteractions();
-                console.log(currentMode);
             };
         }
     });
-    console.log('e')
 });
