@@ -61,6 +61,8 @@ header img {
     background-color: #dcdcdc;
     width: 315px;
     display: flex;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
 }
 
 .players {
@@ -125,6 +127,8 @@ header img {
     background-color: #437e41;
     width: 260px;
     text-align: center;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
 }
 
 .equipmentSmall {
