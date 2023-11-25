@@ -99,6 +99,7 @@ header img {
     padding: 5px;
     margin: 5px;
     margin-bottom: 0px;
+    border-radius: 5px;
 }
 
 .tool[data-selected=true] {
