@@ -6,12 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hankel</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="assets/icon.png" />
     <script src="https://unpkg.com/konva@9.2.0/konva.min.js"></script>
 </head>
 
 <body>
-    <div>
-        Hankel: A soccer planner.
+    <header>
+        <img src="assets/logo.png">
+        <h2>Hankel: a soccer planner.</h2>
+    </header>
+    <div class="break"></div>
+    <div class="menu">
+        <span>planner</span>
+        •
+        <a href="help">help</a>
     </div>
     <div class="break"></div>
     <div class="editor">
@@ -25,7 +33,10 @@
             <div class="break"></div>
             <div id="pitches"></div>
         </div>
-        <div id="tools"> <input type="color" class="tool" id="colorPicker" /></div>
+        <div id="tools">
+            <input type="color" class="tool" id="colorPicker" />
+            <input id="uploadFile" type="file" accept=".hnkl" hidden />
+        </div>
         <div id="equipments"></div>
     </div>
     <div class="break"></div>
@@ -35,6 +46,13 @@
     <div class="break"></div>
     <input type="checkbox" id="notesOption">
     <label for="notesOption">Include notes in image</label>
+    <div class="break"></div>
+    <footer>
+        <p>
+            created by <a href="https://github.com/danielkshin/" target="_blank">daniel shin</a><br>
+            with <a href="https://konvajs.org/" target="_blank">konva.js</a>
+        </p>
+    </footer>
     <script src="script.js"></script>
 </body>
 

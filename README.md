@@ -1,5 +1,3 @@
 # Hankel
 **A soccer planner.**  
-This website is a simple soccer training and tactics planner created at the request of Mr. Hankel, a soccer coach. It includes many player icons, various equipment, and a multitude of pitches, both in color and black and white. Different markup options include drawing, text, lines, arrows, and curved arrows— all available in custom colors. The site also features a notes section to add specific information about the training drill or tactic, which can be saved with the image.  
-
-<img src="preview.png" width="800px"/>  
+This website is a training session and tactic planner created specifically for Mr. Hankel, a soccer coach. It offers a range of player icons, equipment images, and different pitch designs, both in color and black and white. Users can utilize different markup tools like drawing, text, lines, arrows, and curved arrows— all available in custom colors. Additionally, the site features a dedicated notes section where specific information about the drill or tactic can be added. Once completed, the final plan can be saved not only as an image file but also as a JSON file, allowing users to open it at a later time for modifications.
