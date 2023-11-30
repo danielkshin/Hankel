@@ -48,6 +48,12 @@ header img {
     background-color: #191919;
 }
 
+.experimental {
+    width: 20px;
+    margin: 2px;
+    cursor: pointer;
+}
+
 footer {
     display: flex;
     padding-top: 20px;
