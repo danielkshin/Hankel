@@ -135,9 +135,9 @@ loadImages(sources, function (images) {
             const handle = await showSaveFilePicker({
                 types: [
                     {
-                        description: 'JSON File',
+                        description: 'HNKL File',
                         accept: {
-                            'text/json': ['.json'],
+                            'text/json': ['.hnkl'],
                         },
                     },
                 ],
@@ -153,7 +153,7 @@ loadImages(sources, function (images) {
             // Do nothing if user cancels prompt
             if (fileName == null)
                 return;
-            await downloadURI('data:text/json;charset=utf-8,' + encodeURIComponent(stage.toJSON()), `${fileName}.json`);
+            await downloadURI('data:text/json;charset=utf-8,' + encodeURIComponent(stage.toJSON()), `${fileName}.hnkl`);
         }
     }
 
