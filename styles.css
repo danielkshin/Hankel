@@ -1,0 +1,186 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@700&display=swap');
+
+body {
+    background-color: #f0f0f0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-family: 'Open Sans';
+    user-select: none;
+    font-size: 15px;
+}
+
+a {
+    color: #79c086;
+    text-decoration: none;
+}
+
+.break {
+    flex-basis: 100%;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    column-gap: 5px;
+}
+
+header img {
+    width: 40px;
+    height: 40px;
+}
+
+.menu {
+    display: flex;
+    font-size: 13px;
+    padding-bottom: 10px;
+    column-gap: 10px;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f0f0f0;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #969696;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #646464;
+}
+
+.editor {
+    display: flex;
+}
+
+.playersContainer {
+    background-color: #dcdcdc;
+    width: 315px;
+    display: flex;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+.players {
+    width: 105px;
+    height: 653px;
+    overflow: hidden;
+}
+
+.players:hover {
+    overflow-y: scroll;
+}
+
+.player {
+    width: 40px;
+    transform: scale(0.8);
+    padding: 5px;
+}
+
+.player:hover {
+    transform: scale(0.95);
+    cursor: pointer;
+}
+
+#tools {
+    background-color: #191919;
+    width: 50px;
+    margin: 0px;
+}
+
+.tool {
+    vertical-align: top;
+    width: 30px;
+    height: 30px;
+    padding: 5px;
+    margin: 5px;
+    margin-bottom: 0px;
+    border-radius: 5px;
+}
+
+.tool[data-selected=true] {
+    background-color: #323232;
+}
+
+.tool:hover {
+    cursor: pointer;
+    background-color: #282828;
+}
+
+#colorPicker {
+    background-color: transparent;
+    border: none;
+    width: 40px;
+    height: 45px;
+}
+
+#colorPicker::-webkit-color-swatch {
+    border-radius: 5px;
+    border-width: 2px;
+    border-color: #ffffff;
+}
+
+#equipments {
+    background-color: #437e41;
+    width: 260px;
+    text-align: center;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.equipmentSmall {
+    transform: scale(1.0);
+    padding: 5px;
+}
+
+.equipmentSmall:hover {
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+.equipmentLarge {
+    transform: scale(0.7);
+}
+
+.equipmentLarge:hover {
+    transform: scale(0.85);
+    cursor: pointer;
+}
+
+#pitches {
+    background-color: #000000;
+    width: 675px;
+    text-align: center;
+    padding-top: 5px;
+}
+
+.pitch {
+    width: 79px;
+    margin-left: 2.5px;
+    margin-right: 2.5px;
+}
+
+.pitch:hover {
+    cursor: pointer;
+}
+
+#notesInput {
+    margin-top: 10px;
+    font-family: 'Open Sans';
+    resize: none;
+    width: 700px;
+    height: 300px;
+    border-width: 2px;
+    border-radius: 5px;
+}
+
+footer {
+    display: flex;
+    padding-top: 20px;
+    font-size: 11px;
+    text-align: center;
+}
