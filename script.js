@@ -168,6 +168,8 @@ loadImages(sources, function (images) {
 
         // Graphics
         stage.on('click tap', function (e) {
+            if (currentMode != 'none')
+                changed = true;
             let pos = stage.getRelativePointerPosition();
             if (currentMode == 'players') {
                 addImage('players', selectedImage, pos.x, pos.y);
@@ -186,6 +188,8 @@ loadImages(sources, function (images) {
 
         // Markup
         stage.on('mousedown touchstart', function () {
+            if (currentMode != 'none')
+                changed = true;
             const pos = stage.getPointerPosition();
             originalPosition = {
                 x: pos.x,
@@ -417,6 +421,7 @@ loadImages(sources, function (images) {
         // Add event listeners
         for (let i of sources['pitches']) {
             document.getElementById(`pitch${i}`).addEventListener('click', function () {
+                changed = true;
                 pitchLayer.destroyChildren();
                 let pitchImage = new Konva.Image({
                     x: 0,
@@ -492,6 +497,7 @@ loadImages(sources, function (images) {
     let graphicsLayer = new Konva.Layer();
     let pitchLayer = new Konva.Layer();
     let deleting = false;
+    let changed = false;
     const width = 675;
     const height = 520;
 
@@ -530,6 +536,7 @@ loadImages(sources, function (images) {
      * Enable notes in image once typed in
      */
     document.getElementById('notesInput').addEventListener('input', function () {
+        changed = true;
         document.getElementById('notesOption').checked = true;
     });
 
@@ -571,6 +578,7 @@ loadImages(sources, function (images) {
 
     // Asks for confirmation before closing / reloading to prevent loss of unsaved work
     window.addEventListener('beforeunload', (event) => {
-        event.preventDefault();
+        if (changed)
+            event.preventDefault();
     });
 });
