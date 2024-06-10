@@ -568,4 +568,9 @@ loadImages(sources, function (images) {
             };
         }
     });
+
+    // Asks for confirmation before closing / reloading to prevent loss of unsaved work
+    window.addEventListener('beforeunload', (event) => {
+        event.preventDefault();
+    });
 });
