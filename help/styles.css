@@ -37,6 +37,22 @@ header img {
     column-gap: 10px;
 }
 
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f0f0f0;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #969696;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #646464;
+}
+
 .help {
     width: 50%;
 }
