@@ -5,7 +5,7 @@
 let sources = {
     players: [...Array(84).keys()],
     pitches: [...Array(16).keys()],
-    tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow', 'curvedArrow', 'dashedCurvedArrow', 'move', 'delete', 'download', 'downloadJSON', 'uploadJSON'],
+    tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow', 'curvedArrow', 'dashedCurvedArrow', 'circle', 'move', 'delete', 'download', 'downloadJSON', 'uploadJSON'],
     equipments: [...Array(41).keys()],
 };
 
@@ -236,6 +236,15 @@ loadImages(sources, function (images) {
                         dash: currentMode == 'dashedCurvedArrow' ? [15, 10] : [],
                     });
                     break;
+                case 'circle':
+                    line = new Konva.Ellipse({
+                        x: pos.x,
+                        y: pos.y,
+                        stroke: document.getElementById('colorPicker').value,
+                        strokeWidth: 2,
+                        globalCompositeOperation: 'source-over',
+                    });
+                    break;
                 case 'delete':
                     deleting = true;
                     return;
@@ -279,6 +288,10 @@ loadImages(sources, function (images) {
                             line.points([originalPosition.x, originalPosition.y, originalPosition.x, originalPosition.y, pos.x, originalPosition.y, pos.x, pos.y]);
                         }
                     }
+                    break;
+                case 'circle':
+                    line.radius({ x: Math.abs(originalPosition.x - pos.x), y: Math.abs(originalPosition.y - pos.y) });
+                    break;
                 case 'delete':
                     if (deleting) {
                         if (e.target.attrs.width == width)
