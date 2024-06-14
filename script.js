@@ -5,7 +5,7 @@
 let sources = {
     players: [...Array(84).keys()],
     pitches: [...Array(16).keys()],
-    tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow', 'curvedArrow', 'dashedCurvedArrow', 'circle', 'move', 'delete', 'download', 'downloadJSON', 'uploadJSON'],
+    tools: ['draw', 'text', 'line', 'dashedLine', 'arrow', 'dashedArrow', 'squigglyArrow', 'curvedArrow', 'dashedCurvedArrow', 'circle', 'move', 'delete', 'download', 'downloadJSON', 'uploadJSON'],
     equipments: [...Array(41).keys()],
 };
 
@@ -158,6 +158,38 @@ loadImages(sources, function (images) {
     }
 
     /**
+     * Generates points for the squiggly arrow
+     * 
+     * @param {Number} x1 Start x position of the squiggly arrow
+     * @param {Number} y1 Start y position of the squiggly arrow
+     * @param {Number} x2 End x position of the squiggly arrow
+     * @param {Number} y2 End y position of the squiggly arrow
+     * @returns {Array} Array of points of the squiggly arrow
+     */
+    function generateSquigglyArrowPoints(x1, y1, x2, y2) {
+        const points = [];
+        const amplitude = 2;
+        const wavelength = 13;
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const angle = Math.atan2(dy, dx);
+        const numPoints = Math.floor(dist / wavelength * 2 * Math.PI);
+
+        for (let i = 0; i <= numPoints - 8; i++) {
+            const t = i / numPoints;
+            const x = x1 + t * dx + amplitude * Math.sin(t * 2 * Math.PI * dist / wavelength) * Math.cos(angle + Math.PI / 2);
+            const y = y1 + t * dy + amplitude * Math.sin(t * 2 * Math.PI * dist / wavelength) * Math.sin(angle + Math.PI / 2);
+            points.push(x, y);
+        }
+
+        // For a stable arrow head
+        points.push(x2 - dx / dist, y2 - dy / dist);
+        points.push(x2, y2);
+        return points;
+    }
+
+    /**
      * Adds interactions with the stage
      */
     function addInteractions() {
@@ -213,6 +245,7 @@ loadImages(sources, function (images) {
                     break;
                 case 'arrow':
                 case 'dashedArrow':
+                case 'squigglyArrow':
                     line = new Konva.Arrow({
                         stroke: document.getElementById('colorPicker').value,
                         strokeWidth: 2,
@@ -288,6 +321,10 @@ loadImages(sources, function (images) {
                             line.points([originalPosition.x, originalPosition.y, originalPosition.x, originalPosition.y, pos.x, originalPosition.y, pos.x, pos.y]);
                         }
                     }
+                    break;
+                case 'squigglyArrow':
+                    let points = generateSquigglyArrowPoints(originalPosition.x, originalPosition.y, pos.x, pos.y);
+                    line.points(points);
                     break;
                 case 'circle':
                     line.radius({ x: Math.abs(originalPosition.x - pos.x), y: Math.abs(originalPosition.y - pos.y) });
